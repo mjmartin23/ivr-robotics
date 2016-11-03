@@ -1,4 +1,4 @@
-# Some simple open loop scripts 
+# Some simple open loop scripts
 
 import ev3dev.ev3 as ev3
 import time
@@ -8,13 +8,17 @@ import utilities as util
 def operateWheelsBasic():
     print "spin the wheels"
 
-    motor =ev3.LargeMotor('outA')
-    motor.connected
+    Lmotor = ev3.LargeMotor('outB')
+    Rmotor = ev3.LargeMotor('outC')
+    Lmotor.connected
+    Rmotor.connected
 
     # run_time takes milliseconds
-    motor.run_timed(duty_cycle_sp=25, time_sp=500)
+    Lmotor.run_timed(duty_cycle_sp=25, time_sp=500)
+    Rmotor.run_timed(duty_cycle_sp=25, time_sp=500)
     time.sleep(1)
-    motor.run_timed(duty_cycle_sp=-25, time_sp=500)
+    Lmotor.run_timed(duty_cycle_sp=-25, time_sp=500)
+    Rmotor.run_timed(duty_cycle_sp=-25, time_sp=500)
 
     print('sleeping for 1 second')
     time.sleep(1)
@@ -42,20 +46,21 @@ def makeLightAndMotorSwitch():
     print ("using switches")
     print ("for 30 seconds")
 
-    motor = ev3.LargeMotor('outA')
-    motor.connected
+    Lmotor = ev3.LargeMotor('outB')
+    Rmotor = ev3.LargeMotor('outC')
 
     t_start = util.timestamp_now()
-    ts = ev3.TouchSensor()
-    ts2 = ev3.TouchSensor(ev3.INPUT_2)
+    ts = ev3.TouchSensor(ev3.INPUT_1)
+    #ts2 = ev3.TouchSensor(ev3.INPUT_1)
     while True:
         ev3.Leds.set_color(ev3.Leds.LEFT, (ev3.Leds.GREEN, ev3.Leds.RED)[ts.value()])
-        ev3.Leds.set_color(ev3.Leds.RIGHT, (ev3.Leds.GREEN, ev3.Leds.RED)[ts2.value()])
+        #ev3.Leds.set_color(ev3.Leds.RIGHT, (ev3.Leds.GREEN, ev3.Leds.RED)[ts2.value()])
 
         if (ts.value()):
-            motor.run_timed(duty_cycle_sp=100, time_sp=50)
-        elif (ts2.value()):
-            motor.run_timed(duty_cycle_sp=-100, time_sp=50)
+            Lmotor.run_timed(duty_cycle_sp=100, time_sp=50)
+            Rmotor.run_timed(duty_cycle_sp=100, time_sp=50)
+	#elif (ts2.value()):
+        #    Rmotor.run_timed(duty_cycle_sp=-100, time_sp=50)
 
         t_now = util.timestamp_now()
         if (t_now - t_start > 30E3):
@@ -71,7 +76,7 @@ def recordUltraSonic():
 
     btn = ev3.Button()
 
-    sonar = ev3.UltrasonicSensor(ev3.INPUT_1)
+    sonar = ev3.UltrasonicSensor(ev3.INPUT_4)
     sonar.connected
     sonar.mode = 'US-DIST-CM' # will return value in mm
 

@@ -5,6 +5,7 @@
 import ev3dev.ev3 as ev3
 import time
 import utilities as util
+import linefollow as flw
 
 class Robot():
 	"""docstring for Robot"""
@@ -21,6 +22,9 @@ class Robot():
     	self.sonar.connected
     	self.color.connected
 
+    	# following state
+    	self.follower = flw.CircleFollower(self)
+
     	# readings from environment/state of robot
 		self.x = 0
 		self.y = 0
@@ -34,19 +38,23 @@ class Robot():
 	def forward(self,speed=25,time=500):
 		self.lMmotor.run_timed(duty_cycle_sp=speed, time_sp=time)
     	self.rMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
+    	self.updateSensors()
     	# adjust self.x,self.y
 
 	def backward(self,speed=25,time=500):
 		self.lMmotor.run_timed(duty_cycle_sp=-speed, time_sp=time)
     	self.rMotor.run_timed(duty_cycle_sp=-speed, time_sp=time)
+    	self.updateSensors()
     	# adjust self.x,self.y
 
 	def left(self,speed=25,time=500):
 		self.rMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
+		self.updateSensors()
 		# adjust self.x,self.y
 
 	def right(self,speed=25,time=500):
 		self.lMmotor.run_timed(duty_cycle_sp=speed, time_sp=time)
+		self.updateSensors()
 		# adjust self.x,self.y
 
 	def updateSensors(self):
@@ -54,12 +62,18 @@ class Robot():
 		self.sonarDistance = self.sonal.distance_centimeters
 		self.colorReading = self.color.reflected_light_intensity
 
-	def go(self,follower):
-		# follower is a child of LineFollower
-		follower.go(self)
+	def changeFollowerType(self,follow):
+		# follow is a child of LineFollower
+		self.follower = follow
+
+	def go(self):
+		self.follower.go()
 
 	def speakState(self):
 		ev3.sound.speak(self.state)
+
+	def speak(self,string):
+		ev3.sound.speak(string)
 
 if __name__ == '__main__':
 	r = Robot()

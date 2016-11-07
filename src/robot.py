@@ -54,6 +54,10 @@ class Robot():
 		self.sonarDistance = self.sonal.distance_centimeters
 		self.colorReading = self.color.reflected_light_intensity
 
+	def go(self,follower):
+		# follower is a child of LineFollower
+		follower.go(self)
+
 	def speakState(self):
 		ev3.sound.speak(self.state)
 

@@ -78,7 +78,7 @@ class CircleFollower(LineFollower):
 
 		while self.follow():
 			pass
-		self.robot.speak("done following line")
+		self.robot.speak("reached end of line")
 
 
 class BrokenLineFollower(LineFollower):

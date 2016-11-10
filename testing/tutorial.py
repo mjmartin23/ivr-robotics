@@ -75,9 +75,9 @@ def recordUltraSonic():
 
     btn = ev3.Button()
 
-    sonar = ev3.UltrasonicSensor(ev3.INPUT_4)
+    sonar = ev3.UltrasonicSensor(ev3.INPUT_1)
     sonar.connected
-    sonar.mode = 'US-DIST-CM' # will return value in mm
+    sonar.mode = 'US-DIST-CM' # will return value in cm
 
     readings = ""
     readings_file = open('results.txt', 'w')
@@ -86,3 +86,20 @@ def recordUltraSonic():
         readings = readings + str(sonar.value()) + '\n'
     readings_file.write(readings)
     readings_file.close() # Will write to a text file in a column
+
+def recordUltraSonicAndSonar():
+
+    btn = ev3.Button()
+
+    sonar = ev3.UltrasonicSensor(ev3.INPUT_1)
+    sonar.connected
+    sonar.mode = 'US-DIST-CM' # will return value in cm
+
+    servo = ev3.MediumMotor('A')
+    servo.run_to_abs_position(position_sp=0)
+    i = 0
+    while not btn.backspace:
+        readings = readings + str(sonar.value()) + '\n'
+        if sonar.value() < 1000:
+            servo.run_to_rel_position(position_sp=i*30,duty_cycle_sp=30)
+            i+=1

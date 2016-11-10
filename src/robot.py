@@ -4,7 +4,6 @@
 
 import ev3dev.ev3 as ev3
 import time
-import utilities as util
 import linefollow as flw
 
 class Robot():
@@ -14,18 +13,15 @@ class Robot():
 		self.lMotor = ev3.LargeMotor('outB')
 		self.rMotor = ev3.LargeMotor('outC')
 		self.gyro = ev3.GyroSensor(ev3.INPUT_2)
-		self.sonar = ev3.UltrasonicSensor(ev3.INPUT_4)
-		self.color = ev3.ColorSensor(ev3.INPUT_3)
-		self.lMmotor.connected
-    	self.rMotor.connected
-    	self.gyro.connected
-    	self.sonar.connected
-    	self.color.connected
+		self.sonar = ev3.UltrasonicSensor(ev3.INPUT_1)
+		self.color = ev3.ColorSensor(ev3.INPUT_4)
+		self.lMotor.connected
+		self.rMotor.connected
+		self.gyro.connected
+		self.sonar.connected
+		self.color.connected
 
-    	# following state
-    	self.follower = flw.CircleFollower(self)
-
-    	# readings from environment/state of robot
+		# readings from environment/state of robot
 		self.x = 0
 		self.y = 0
 		self.gyroAngle = 0
@@ -33,19 +29,22 @@ class Robot():
 		self.colorReading = 0
 		self.updateSensors()
 
+		# following state
+    	self.follower = flw.CircleFollower(self)
+
 		self.state = "initialized"
 
 	def forward(self,speed=25,time=500):
-		self.lMmotor.run_timed(duty_cycle_sp=speed, time_sp=time)
-    	self.rMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
-    	self.updateSensors()
-    	# adjust self.x,self.y
+		self.lMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
+		self.rMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
+		self.updateSensors()
+		# adjust self.x,self.y
 
 	def backward(self,speed=25,time=500):
-		self.lMmotor.run_timed(duty_cycle_sp=-speed, time_sp=time)
-    	self.rMotor.run_timed(duty_cycle_sp=-speed, time_sp=time)
-    	self.updateSensors()
-    	# adjust self.x,self.y
+		self.lMotor.run_timed(duty_cycle_sp=-speed, time_sp=time)
+		self.rMotor.run_timed(duty_cycle_sp=-speed, time_sp=time)
+		self.updateSensors()
+		# adjust self.x,self.y
 
 	def left(self,speed=25,time=500):
 		self.rMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
@@ -53,14 +52,14 @@ class Robot():
 		# adjust self.x,self.y
 
 	def right(self,speed=25,time=500):
-		self.lMmotor.run_timed(duty_cycle_sp=speed, time_sp=time)
+		self.lMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
 		self.updateSensors()
 		# adjust self.x,self.y
 
 	def updateSensors(self):
-		self.gyroAngle = self.gyro.angle
-		self.sonarDistance = self.sonal.distance_centimeters
-		self.colorReading = self.color.reflected_light_intensity
+		self.gyroAngle = self.gyro.value()
+		self.sonarDistance = self.sonar.value()
+		self.colorReading = self.color.value()
 
 	def changeFollowerType(self,follow):
 		# follow is a child of LineFollower
@@ -70,10 +69,11 @@ class Robot():
 		self.follower.go()
 
 	def speakState(self):
-		ev3.sound.speak(self.state)
+		ev3.Sound.speak(self.state)
 
 	def speak(self,string):
-		ev3.sound.speak(string)
+		ev3.Sound.speak(string)
 
 if __name__ == '__main__':
 	r = Robot()
+	r.go()

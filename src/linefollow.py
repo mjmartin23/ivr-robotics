@@ -7,10 +7,10 @@ class LineFollower():
 	def __init__(self,robot):
 		self.robot = robot
 		# True if robot on line False otherwise
-		self.onLine = self.updateOnLine()
+		self.updateOnLine()
 
 	def updateOnLine(self):
-		self.onLine = self.robot.colorReading > 40
+		self.onLine = self.robot.colorReading < 30
 
 	def follow(self):
 		# return True if there is more line to be followed
@@ -26,7 +26,7 @@ class LineFollower():
 		# turn forward when self.onLine = True,
 		# turn left when self.onLine = False
 		i = 0
-		maxTurn = 5
+		maxTurn = 500
 		if self.onLine:
 			while self.onLine:
 				self.robot.forward(time=100)
@@ -43,7 +43,7 @@ class LineFollower():
 		# OR
 
 		# go forward when self.onLine = True,
-		# figure out whether the line is to the left or 
+		# figure out whether the line is to the left or
 		#	to the right when self.onLine = False,
 		# go that way
 
@@ -70,7 +70,7 @@ class LineFollower():
 class CircleFollower(LineFollower):
 	"""docstring for CircleFollower"""
 	def __init__(self, robot):
-		super(CircleFollower, self).__init__(robot)
+		LineFollower.__init__(self,robot)
 
 	def go(self):
 		# keep following the circle until some state is reached
@@ -84,7 +84,7 @@ class CircleFollower(LineFollower):
 class BrokenLineFollower(LineFollower):
 	"""docstring for CircleFollower"""
 	def __init__(self, robot):
-		super(BrokenLineFollower, self).__init__(robot)
+		LineFollower.__init__(self,robot)
 		self.linesCompleted = 0
 
 	def go(self):
@@ -132,12 +132,12 @@ class BrokenLineFollower(LineFollower):
 			# turn back to original heading
 
 
-		
-		
+
+
 class ObstacleAvoider(LineFollower):
 	"""docstring for CircleFollower"""
 	def __init__(self, robot):
-		super(ObstacleAvoider, self).__init__(robot)
+		LineFollower.__init__(self,robot)
 		self.obstacleFound = False
 
 	def updateSonar():

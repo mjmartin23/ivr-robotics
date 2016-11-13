@@ -143,6 +143,7 @@ class ObstacleAvoider(LineFollower):
 	def updateSonar():
 		# 10 is arbitrary - we'll have to tune
 		# self.robot.sonarDistance is in centimeters
+		self.robot.rotateServo()
 		self.obstacleFound = self.robot.sonarDistance < 10
 
 	def go(self):

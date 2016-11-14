@@ -30,6 +30,8 @@ class PID:
 
             dValue = self.Kd * (deltaError/deltaTime)
 
+            self.lastTime = self.currentTime
+
             self.output = pValue + iValue + dValue
 
 
@@ -45,19 +47,19 @@ def findObject(robot):
 def faceObject(robot):
     goalAngle = robot.servo.position
     initialAngle = robot.gyroReading
-    r = PID(robot,1,1,1,goalAngle)
-    while r.error > 5:
-        angle = r.update(robot.gyroReading)
-        robot.rotateDegrees(angle)
+    controller = PID(robot,1,1,1,goalAngle)
+    while controller.error > 5:
+        controller.update(robot.gyroReading)
+        robot.rotateDegrees(controller.output)
 
 
 def goToObject(robot,safe):
     robot.updateSensors()
     distanceToTravel = robot.sonarReading-safe
-    r = PID(robot,1,1,1,distanceToTravel)
-    while r.error > 5:
-        distance = r.update(robot.gyroReading)
-        robot.goDistance(distance)
+    controller = PID(robot,1,1,1,distanceToTravel)
+    while controller.error > 5:
+        controller.update(robot.gyroReading)
+        robot.goDistance(controller.output)
 
 def main():
     robot = rob.Robot()

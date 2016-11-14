@@ -29,11 +29,11 @@ class LineFollower():
 		maxTurn = 500
 		if self.onLine:
 			while self.onLine:
-				self.robot.forward(time=100)
+				self.robot.right(time=50)
 				self.updateOnLine()
 		else:
 			while not self.onLine and i < maxTurn:
-				self.robot.left(time=100)
+				self.robot.left(time=50)
 				self.updateOnLine()
 				i += 1
 
@@ -109,8 +109,8 @@ class BrokenLineFollower(LineFollower):
 		# it'll be on the left otherwise
 		if self.linesCompleted % 2 == 0:
 			# turn right until we've turned 90 degrees
-			# while self.robot.gyroAngle > someValue:
-			#	self.robot.right()
+			self.robot.updateSensors()
+			self.robot.rotateDegrees(90+self.robot.gyroReading)
 
 			# go forward until we find a line
 			while not self.onLine:
@@ -121,8 +121,8 @@ class BrokenLineFollower(LineFollower):
 
 		else:
 			# turn left until we've turned 90 degrees
-			# while self.robot.gyroAngle > someValue:
-			#	self.robot.left()
+			self.robot.updateSensors()
+			self.robot.rotateDegrees(-90+self.robot.gyroReading)
 
 			# go forward until we find a line
 			while not self.onLine:

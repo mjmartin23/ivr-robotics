@@ -79,9 +79,9 @@ class Robot():
 		elif self.servoDirection == 'right' and self.servo.position > 30:
 			self.servoDirection = 'left'
 		if self.servoDirection == 'left':
-			self.servo.run_to_rel_position(position_sp=-4,speed_sp=30)
+			self.servo.run_to_rel_position(position_sp=-2,speed_sp=30)
 		else:
-			self.servo.run_to_rel_position(position_sp=4,speed_sp=30)
+			self.servo.run_to_rel_position(position_sp=2,speed_sp=30)
 
 	def updateSensors(self):
 		self.gyroReading = self.gyro.value()

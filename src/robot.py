@@ -27,20 +27,33 @@ class Robot():
 		self.sonarReading = 0
 		self.colorReading = 0
 		self.servoDirection = 'left'
-		self.servo.run_to_abs_position(position_sp=0)
+		#self.servo.run_to_abs_position(position_sp=0)
+
+		self.init_pos_r = self.rMotor.position
+		self.init_pos_l = self.lMotor.position
+
+		self.rel_pos_r = self.rMotor.position
+		self.rel_pos_l = self.lMotor.position
 		self.updateSensors()
 
+
 		# following state
-    	self.follower = flw.CircleFollower(self)
+		self.follower = flw.CircleFollower(self)
 
 		self.state = "initialized"
 
 	def forward(self,speed=25,time=500):
 		self.lMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
 		self.rMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
-		self.updateSensors()
-		# adjust self.x,self.y
 
+		while(self.lMotor.state):
+			self.updateSensors()
+		# adjust self.x,self.y
+	def foward_till(self,speed = 25,dist = 300):
+		self.lMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
+		self.rMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
+		while(self.lMotor.state):
+			self.updateSensors()
 	def backward(self,speed=25,time=500):
 		self.lMotor.run_timed(duty_cycle_sp=-speed, time_sp=time)
 		self.rMotor.run_timed(duty_cycle_sp=-speed, time_sp=time)
@@ -52,6 +65,10 @@ class Robot():
 		self.updateSensors()
 		# adjust self.x,self.y
 
+	def left_till(self,speed = 25,dist = 300):
+		self.lMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
+		while(self.lMotor.state):
+			self.updateSensors()
 	def right(self,speed=25,time=500):
 		self.lMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
 		self.updateSensors()
@@ -81,6 +98,13 @@ class Robot():
 		self.sonarReading = self.sonar.value()
 		self.colorReading = self.color.value()
 
+		self.rel_pos_r = self.rMotor.position-self.init_pos_r
+		self.rel_pos_l = self.lMotor.position-self.init_pos_l
+
+		print(self.rel_pos_l)
+		print(self.rel_pos_r)
+
+
 	def changeFollowerType(self,follow):
 		# follow is a child of LineFollower
 		self.follower = follow
@@ -93,7 +117,6 @@ class Robot():
 
 	def speak(self,string):
 		ev3.Sound.speak(string)
-
 if __name__ == '__main__':
 	r = Robot()
 	r.go()

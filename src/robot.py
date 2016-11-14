@@ -82,16 +82,23 @@ class Robot():
 		self.left(speed=speed,time=time)
 		self.right(speed=-speed,time=time)
 
+	def rotateDegrees(self,degrees):
+		# implement from lab 2B
+		pass
+
+	def goDistance(self,distance):
+		# implement from lab 2B
+		pass
+
 	def rotateServo(self):
 		if self.servoDirection == 'left' and self.servo.position < -30:
 			self.servoDirection = 'right'
 		elif self.servoDirection == 'right' and self.servo.position > 30:
 			self.servoDirection = 'left'
-
 		if self.servoDirection == 'left':
-			self.servo.run_to_rel_position(position_sp=-4,speed_sp=30)
+			self.servo.run_to_rel_position(position_sp=-2,speed_sp=30)
 		else:
-			self.servo.run_to_rel_position(position_sp=4,speed_sp=30)
+			self.servo.run_to_rel_position(position_sp=2,speed_sp=30)
 
 	def updateSensors(self):
 		self.gyroReading = self.gyro.value()

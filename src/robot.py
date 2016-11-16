@@ -27,7 +27,7 @@ class Robot():
 		self.sonarReading = 0
 		self.colorReading = 0
 		self.servoDirection = 'left'
-		#self.servo.run_to_abs_position(position_sp=0)
+		self.servo.run_to_abs_pos(position_sp=0,duty_cycle_sp=25)
 
 		self.init_pos_r = self.rMotor.position
 		self.init_pos_l = self.lMotor.position
@@ -69,6 +69,10 @@ class Robot():
 		self.lMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
 		while(self.lMotor.state):
 			self.updateSensors()
+	def right_till(self,speed = 25,dist = 300):
+		self.rMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
+		while(self.rMotor.state):
+			self.updateSensors()
 	def right(self,speed=25,time=500):
 		self.lMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
 		self.updateSensors()
@@ -91,14 +95,14 @@ class Robot():
 		pass
 
 	def rotateServo(self):
-		if self.servoDirection == 'left' and self.servo.position < -30:
+		if self.servoDirection == 'left' and self.servo.position < -60:
 			self.servoDirection = 'right'
-		elif self.servoDirection == 'right' and self.servo.position > 30:
+		elif self.servoDirection == 'right' and self.servo.position > 60:
 			self.servoDirection = 'left'
 		if self.servoDirection == 'left':
-			self.servo.run_to_rel_position(position_sp=-2,speed_sp=30)
+			self.servo.run_timed(time_sp=10000,duty_cycle_sp=-25)
 		else:
-			self.servo.run_to_rel_position(position_sp=2,speed_sp=30)
+			self.servo.run_timed(time_sp=10000,duty_cycle_sp=25)
 
 	def updateSensors(self):
 		self.gyroReading = self.gyro.value()

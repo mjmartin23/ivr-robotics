@@ -5,6 +5,7 @@
 import ev3dev.ev3 as ev3
 import time
 import linefollow as flw
+from Odometry import *
 
 class Robot():
 	"""docstring for Robot"""
@@ -84,11 +85,19 @@ class Robot():
 
 	def rotateDegrees(self,degrees):
 		# implement from lab 2B
+		clicks = deg_to_clicks(degrees)
+		self.left_till(dist = clicks)
 		pass
 
 	def goDistance(self,distance):
 		# implement from lab 2B
 		pass
+	def go_to(x,y,theta)
+    	angle,clicks = dist_to_ca(x,y)
+		self.rotateDegrees(angle)
+		self.forward_till(dist = clicks)
+		final_angle = theta-angle
+		self.rotateDegrees(final_angle)
 
 	def rotateServo(self):
 		if self.servoDirection == 'left' and self.servo.position < -30:

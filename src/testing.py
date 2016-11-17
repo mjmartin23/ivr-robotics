@@ -8,7 +8,7 @@ import time
 
 def findMotorPositionToMillimeters():
     rob = Robot()
-    dists = range(50,500,50)
+    dists = range(100,700,50)
     results = "commandedMotorClicks,actualMotorClicksL,actualMotorClicksR,mmTraveled\n"
     for dist in dists:
         initialDistance = rob.sonar.value()
@@ -28,13 +28,13 @@ def findMotorPositionToMillimeters():
         while rob.lMotor.state and rob.rMotor.state:
             pass
         time.sleep(0.5)
-    f = open("motorDistance.txt","w")
+    f = open("/home/robot/ivr-robotics/data/motorDistance.txt","w")
     f.write(results)
     f.close()
 
 def findMotorTurningToDegrees():
     rob = Robot()
-    dists = range(50,500,50)
+    dists = range(100,700,50)
     results = "commandedMotorClicks,actualMotorClicksL,actualMotorClicksR,angleTurned\n"
     for dist in dists:
         initialAngle = rob.gyro.value()
@@ -44,17 +44,12 @@ def findMotorTurningToDegrees():
         rob.rMotor.run_to_rel_pos(duty_cycle_sp=25,position_sp=-dist)
         while rob.lMotor.state and rob.rMotor.state:
             pass
-        time.sleep(0.5)
+        time.sleep(0.75)
         endLeftMotor = rob.lMotor.position
         endRightMotor = rob.rMotor.position
         endAngle = rob.gyro.value()
         results += str(dist) + "," + str(endLeftMotor-initialLeftMotor) + "," + str(endRightMotor-initialRightMotor) + "," + str(initialAngle-endAngle) + "\n"
-        rob.lMotor.run_to_rel_pos(position_sp=-dist,duty_cycle_sp=25)
-        rob.rMotor.run_to_rel_pos(position_sp=-dist,duty_cycle_sp=25)
-        while rob.lMotor.state and rob.rMotor.state:
-            pass
-        time.sleep(0.5)
-    f = open("rotationDistance.txt","w")
+    f = open("/home/robot/ivr-robotics/data/rotationDistance.txt","w")
     f.write(results)
     f.close()
 
@@ -112,6 +107,6 @@ def turning():
 
 if __name__ == '__main__':
     #findMotorPositionToMillimeters()
-    #findMotorTurningToDegrees()
+    findMotorTurningToDegrees()
     #forwards()
     #turning()

@@ -9,14 +9,14 @@ class PID:
         self.Ki = Ki
         self.Kd = Kd
         self.goal = goal
-        self.lastError = 0.0
+        self.lastError = goal
         self.currentTime = time.time()
         self.lastTime = self.currentTime
         self.interval = interval
 
     def set(self,goal,interval = 0.01):
         self.goal = goal
-        self.lastError = 0.0
+        self.lastError = goal
         self.currentTime = time.time()
         self.lastTime = self.currentTime
         self.interval = interval
@@ -30,12 +30,13 @@ class PID:
         deltaError = error - self.lastError
 
         if deltaTime >= self.interval:
-            pValue = self.Kp * self.error
+            pValue = self.Kp * error
 
             iValue = 0
 
             dValue = self.Kd * (deltaError/deltaTime)
 
             self.lastTime = self.currentTime
-
+    	    self.lastError = error
+	    print pValue,dValue
             self.output = pValue + iValue + dValue

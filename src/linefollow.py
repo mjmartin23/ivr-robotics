@@ -2,6 +2,8 @@
 # 7/11/16
 # LineFollower parent class and child classes
 
+import time
+
 class LineFollower():
 	"""robot should be of type Robot"""
 	def __init__(self,robot):
@@ -11,7 +13,7 @@ class LineFollower():
 
 	def updateOnLine(self):
 		self.robot.odometry.updateSensors()
-		self.onLine = self.robot.colorReading < 40
+		self.onLine = self.robot.colorReading < 25
 
 	def follow(self,side="right"):
 		# return True if there is more line to be followed
@@ -26,20 +28,20 @@ class LineFollower():
 		# turn forward when self.onLine = True,
 		# turn left when self.onLine = False
 		i = 0
-		maxTurn = 50
+		maxTurn = 45
 		if self.onLine:
 			while self.onLine:
 				if side == "right":
-					self.robot.mover.rotate_right(time=50,loop=False)
+					self.robot.mover.rotate_right(speed=30,time=50,loop=False)
 				else:
-					self.robot.mover.rotate_left(time=50,loop=False)
+					self.robot.mover.rotate_left(speed=30,time=50,loop=False)
 				self.updateOnLine()
 		else:
 			while not self.onLine and i < maxTurn:
 				if side == "right":
-					self.robot.mover.rotate_left(time=50,loop=False)
+					self.robot.mover.rotate_left(speed=30,time=50,loop=False)
 				else:
-					self.robot.mover.rotate_right(time=50,loop=False)
+					self.robot.mover.rotate_right(speed=30,time=50,loop=False)
 				self.updateOnLine()
 				i += 1
 
@@ -62,6 +64,7 @@ class CircleFollower(LineFollower):
 		while self.follow():
 			pass
 		self.robot.speak("done")
+		print 'done'
 
 
 class BrokenLineFollower(LineFollower):
@@ -90,7 +93,6 @@ class BrokenLineFollower(LineFollower):
 
 			self.robot.speak("looking for next line")
 			self.findNextLine()
-
 			self.robot.speak("found next line")
 			side = "right" if side == "left" else "left"
 			time.sleep(1)
@@ -103,28 +105,38 @@ class BrokenLineFollower(LineFollower):
 		# self.linesCompleted % 2 == 1
 		# it'll be on the left otherwise
 		if self.linesCompleted % 2 == 1:
-			# turn right until we've turned 90 degrees
+			# turn right until we've turned 70 degrees
 			self.robot.odometry.updateSensors()
-			self.robot.mover.rotateDegrees(90-self.robot.gyroReading)
+			self.robot.mover.rotateDegrees(70-self.robot.gyroReading)
 
 			# go forward until we find a line
 			while not self.onLine:
 				self.robot.mover.forward(loop=False)
 				self.updateOnLine()
-
+			self.robot.mover.stopWheels(r=True,l=True,update=False)
 			# turn back to original heading
+			while self.onLine:
+				self.robot.mover.rotateCounterClockwise(50,loop=False)
+				self.updateOnLine()
+			self.robot.mover.stopWheels(r=True,l=True,update=False)
+
 
 		else:
-			# turn left until we've turned 90 degrees
+			# turn left until we've turned 70 degrees
 			self.robot.odometry.updateSensors()
-			self.robot.mover.rotateDegrees(-90-self.robot.gyroReading)
+			self.robot.mover.rotateDegrees(-70-self.robot.gyroReading)
 
 			# go forward until we find a line
 			while not self.onLine:
 				self.robot.mover.forward(loop=False)
 				self.updateOnLine()
+			self.robot.mover.stopWheels(r=True,l=True,update=False)
 
 			# turn back to original heading
+			while self.onLine:
+				self.robot.mover.rotateClockwise(50,loop=False)
+				self.updateOnLine()
+			self.robot.mover.stopWheels(r=True,l=True,update=False)
 
 
 class ObstacleAvoider(LineFollower):
@@ -200,7 +212,7 @@ class ObstacleAvoider(LineFollower):
 		self.robot.mover.stopWheels(r=True,l=True)
 
 	def go(self):
-		
+
 		#lookForObject(self.follow)
 		while not self.obstacleFound:
 			self.follow()

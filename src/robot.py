@@ -61,4 +61,5 @@ class Robot():
 
 if __name__ == '__main__':
 	r = Robot()
+	r.changeFollowerType(flw.BrokenLineFollower(r))
 	r.go()

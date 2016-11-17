@@ -9,22 +9,32 @@ class Odometry:
 		self.robot = robot
 
 	def euclid_to_ca(self,x,y):
-		angle = math.arctan(x,y)
-		clicks = math.sqrt(x^2,y^2)*300/15
+		angle = math.atan2(y,x)*180.0/math.pi
+		cm = math.sqrt(x^2+y^2)
+		clicks = self.cm_to_clicks(cm)
 		return clicks, angle
 
 	def cm_to_clicks(self,cent):
-		return (300/15)*cent
+		#return (300/15)*cent
+		mm = 10.0*cent
+		constant = 0.4807090465
+		return int(float(mm)/constant)
+
+	def clicks_to_cm(self,clicks):
+		constant = 0.4807090465
+		return clicks*constant
 
 	def deg_to_clicks(self,deg):
-		return r*deg/2*math.pi
+		#return self.robot.lbw*deg/2*math.pi
+		constant = 0.4695354523
+		return int(float(deg)/constant)
 
 	def updateSensors(self, l=False,r=False,g=True,s=True,c=True):
 		if(g):
 			self.robot.gyroReading = self.robot.gyro.value()
 		if(s):
 			self.robot.sonarReading = self.robot.sonar.value()
-			self.robot.servoReading = self.robot.servo.value()
+			self.robot.servoReading = self.robot.servo.position
 		if(c):
 			self.robot.colorReading = self.robot.color.value()
 		if(r):
@@ -55,7 +65,7 @@ class Odometry:
 				dist = r
 			else:
 				dist = l
-			
+
 			#alpha is the current direction of Rob
 			alpha =self.robot.gyroReading
 
@@ -69,7 +79,7 @@ class Odometry:
 			dx = radius - radius*math.cos(dtheta)
 			dy = radius + math.sin(dtheta)
 			#Updating Rob's current belief of position
-			self.robot.x = self.robot.x + dist*math.cos(theta) + dx 
+			self.robot.x = self.robot.x + dist*math.cos(theta) + dx
 			self.robot.y = self.robot.y + dist*math.sin(theta) + dy
 			self.robot.theta = theta
 

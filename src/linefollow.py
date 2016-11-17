@@ -1,7 +1,8 @@
 # Matt Martin, Dylan Angus
 # 7/11/16
 # LineFollower parent class and child classes
-
+from Move import *
+from Odometry import *
 class LineFollower():
 	"""robot should be of type Robot"""
 	def __init__(self,robot):
@@ -29,11 +30,11 @@ class LineFollower():
 		maxTurn = 500
 		if self.onLine:
 			while self.onLine:
-				self.robot.right(time=50)
+				self.robot.rotate_right(time=50)
 				self.updateOnLine()
 		else:
 			while not self.onLine and i < maxTurn:
-				self.robot.left(time=50)
+				self.robot.rotate_left(time=50)
 				self.updateOnLine()
 				i += 1
 
@@ -132,8 +133,6 @@ class BrokenLineFollower(LineFollower):
 			# turn back to original heading
 
 
-
-
 class ObstacleAvoider(LineFollower):
 	"""docstring for CircleFollower"""
 	def __init__(self, robot):
@@ -144,14 +143,27 @@ class ObstacleAvoider(LineFollower):
 		# 10 is arbitrary - we'll have to tune
 		# self.robot.sonarDistance is in centimeters
 		self.robot.rotateServo()
-		self.obstacleFound = self.robot.sonarDistance < 10
+		self.obstacleFound = self.robot.sonarDistance < 100
+		self.robot.updateSensors()
+	def lookForObject(action=None):
+		while not self.obstacleFound:
+			if(action != None):
+				action()
+			self.updateSonar()
+		self.robot.speak("Found object.")
+		return self.robot.sonarDistance/10, self.robot.servoReading
+
+	def go_to_Object():
+		robot.forward(time = 50000,loop=False)
+		dist,angle =lookForObject()
+		self.robot.stopWheels(l =True,r=True)
+		robot.go_to_ca(dist,angle)
 
 	def go(self):
 		# follow() until self.obstacleFound == True
-		while not self.obstacleFound:
-			self.follow()
-			self.updateSonar()
-		self.robot.speak("found obstacle. Going to get around it")
+		
+		lookForObject(self.follow)
+		self.robot.speak("Going to get around object.")
 		# get closer to object using PI control (necessary?)
 		# go around object
 		# find line again

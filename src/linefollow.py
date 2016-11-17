@@ -1,8 +1,7 @@
 # Matt Martin, Dylan Angus
 # 7/11/16
 # LineFollower parent class and child classes
-from Move import *
-from Odometry import *
+
 class LineFollower():
 	"""robot should be of type Robot"""
 	def __init__(self,robot):
@@ -11,56 +10,40 @@ class LineFollower():
 		self.updateOnLine()
 
 	def updateOnLine(self):
-		self.onLine = self.robot.colorReading < 30
+		self.robot.odometry.updateSensors()
+		self.onLine = self.robot.colorReading < 40
 
-	def follow(self):
+	def follow(self,side="right"):
 		# return True if there is more line to be followed
 		# return False if we got to the end of the line
 		#
 		# follow just moves one "step" forward, it's caller
 		# will put it in a while loop
 
-		self.robot.updateSensors()
 		self.updateOnLine()
 
 		# assuming a curve that is curving to the left,
 		# turn forward when self.onLine = True,
 		# turn left when self.onLine = False
 		i = 0
-		maxTurn = 500
+		maxTurn = 50
 		if self.onLine:
 			while self.onLine:
-				self.robot.rotate_right(time=50)
+				if side == "right":
+					self.robot.mover.rotate_right(time=50,loop=False)
+				else:
+					self.robot.mover.rotate_left(time=50,loop=False)
 				self.updateOnLine()
 		else:
 			while not self.onLine and i < maxTurn:
-				self.robot.rotate_left(time=50)
+				if side == "right":
+					self.robot.mover.rotate_left(time=50,loop=False)
+				else:
+					self.robot.mover.rotate_right(time=50,loop=False)
 				self.updateOnLine()
 				i += 1
 
 		return i < maxTurn or self.onLine
-
-
-		# OR
-
-		# go forward when self.onLine = True,
-		# figure out whether the line is to the left or
-		#	to the right when self.onLine = False,
-		# go that way
-
-		# if self.onLine:
-		# 	self.robot.forward()
-		# else:
-		# 	for i in range(4):
-		# 		if i % 2 == 0:
-		# 			self.robot.left(time=(i+1)*100)
-		# 		else:
-		# 			self.robot.right(time=(i+1)*100)
-		# 		self.upateOnLine()
-		# 		if self.onLine:
-		# 			break
-
-		# return self.onLine
 
 
 	def go(self):
@@ -74,12 +57,11 @@ class CircleFollower(LineFollower):
 		LineFollower.__init__(self,robot)
 
 	def go(self):
-		# keep following the circle until some state is reached
-		# (e.g. the program is quit? reaches end of line? unclear in assignment)
-
+		# keep following the circle until reaches end of line
+		self.robot.speak("following curved line")
 		while self.follow():
 			pass
-		self.robot.speak("reached end of line")
+		self.robot.speak("done")
 
 
 class BrokenLineFollower(LineFollower):
@@ -90,44 +72,56 @@ class BrokenLineFollower(LineFollower):
 
 	def go(self):
 		# continue untill we've finished all 4 lines
+		self.robot.speak("following broken lines")
+		side = "right"
 		while self.linesCompleted < 4:
 			# follow() until reach end of line
-			while self.follow():
+			self.robot.speak("following line %d" % (self.linesCompleted+1))
+
+			while self.follow(side):
 				pass
 			# increment self.linesCompleted
 			self.linesCompleted += 1
 			# speak end of line
 			self.robot.speak("reached end of line %d" % (self.linesCompleted))
 
+			if self.linesCompleted == 4:
+				break
+
+			self.robot.speak("looking for next line")
 			self.findNextLine()
 
 			self.robot.speak("found next line")
+			side = "right" if side == "left" else "left"
+			time.sleep(1)
+
+		self.robot.speak("done")
 
 	def findNextLine(self):
 		# find next line
 		# line will be to the right if
 		# self.linesCompleted % 2 == 1
 		# it'll be on the left otherwise
-		if self.linesCompleted % 2 == 0:
+		if self.linesCompleted % 2 == 1:
 			# turn right until we've turned 90 degrees
-			self.robot.updateSensors()
-			self.robot.rotateDegrees(90+self.robot.gyroReading)
+			self.robot.odometry.updateSensors()
+			self.robot.mover.rotateDegrees(90-self.robot.gyroReading)
 
 			# go forward until we find a line
 			while not self.onLine:
-				self.robot.forward()
+				self.robot.mover.forward(loop=False)
 				self.updateOnLine()
 
 			# turn back to original heading
 
 		else:
 			# turn left until we've turned 90 degrees
-			self.robot.updateSensors()
-			self.robot.rotateDegrees(-90+self.robot.gyroReading)
+			self.robot.odometry.updateSensors()
+			self.robot.mover.rotateDegrees(-90-self.robot.gyroReading)
 
 			# go forward until we find a line
 			while not self.onLine:
-				self.robot.forward()
+				self.robot.mover.forward(loop=False)
 				self.updateOnLine()
 
 			# turn back to original heading
@@ -139,33 +133,88 @@ class ObstacleAvoider(LineFollower):
 		LineFollower.__init__(self,robot)
 		self.obstacleFound = False
 
-	def updateSonar():
+	def updateSonar(self):
 		# 10 is arbitrary - we'll have to tune
-		# self.robot.sonarDistance is in centimeters
-		self.robot.rotateServo()
-		self.obstacleFound = self.robot.sonarDistance < 100
-		self.robot.updateSensors()
-	def lookForObject(action=None):
+		# self.robot.sonarReading is in centimeters
+		self.robot.mover.rotateServo()
+		self.robot.odometry.updateSensors()
+		self.obstacleFound = self.robot.sonarReading < 400
+
+	def lookForObject(self,action=None):
 		while not self.obstacleFound:
 			if(action != None):
 				action()
 			self.updateSonar()
 		self.robot.speak("Found object.")
-		return self.robot.sonarDistance/10, self.robot.servoReading
+		return self.robot.sonarReading/10, self.robot.servoReading
 
-	def go_to_Object():
-		robot.forward(time = 50000,loop=False)
-		dist,angle =lookForObject()
-		self.robot.stopWheels(l =True,r=True)
-		robot.go_to_ca(dist,angle)
+	def goToObject(self,safe=10):
+		# robot.mover.forward(time = 50000,loop=False)
+		# dist,angle = self.lookForObject()
+		# self.robot.mover.stopWheels(l =True,r=True)
+		# self.robot.mover.go_to_ca(dist,angle)
+
+		# get closer to object using PD control
+		dist,angle = self.robot.sonarReading/10, self.robot.servoReading
+		# buffer of safe cm from object
+		self.robot.mover.go_to_ca(dist-safe,angle)
+		self.robot.servo.run_to_rel_pos(position_sp=0,duty_cycle_sp=25)
+
+	def goAroundObject(self):
+		# possible algorithm:
+		# turn robot 90 degrees so it is parallel with object
+		# turn sonar to look at object
+		# drive forward until sonar doesnt see an object anymore
+		# repeat until we find the line
+		self.robot.mover.rotateDegrees(90)
+		self.robot.servo.run_to_rel_pos(position_sp=-90,duty_cycle_sp=25)
+		while (self.robot.lMotor.state and self.robot.rMotor.state and self.robot.servo.state):
+			pass
+
+		self.robot.odometry.updateSensors()
+		lastSonar = self.robot.sonarReading
+		while not self.onLine:
+			# go forward a small amount
+			# if object is no longer there
+			# 	go forward another small amount to be sure turning doesn't collide
+			#	turn left 90 degrees
+			#	go forward till we find the object again
+			if self.robot.sonarReading < 200:
+				# we're getting dangerously close to the object, turn right a little
+				self.robot.speak("got too close to object, turning right")
+				self.robot.mover.rotateClockwise(10)
+
+			self.robot.mover.forward_till(dist=100,loop=False)
+			self.robot.odometry.updateSensors()
+			if self.robot.sonarReading - lastSonar > 1000:
+				self.robot.mover.forward_till(dist=500)
+				self.robot.rotateDegrees(-90)
+				self.robot.odometry.updateSensors()
+				while self.robot.sonarReading > 500:
+					self.robot.mover.forward_till(dist=200,loop=False)
+					self.robot.odometry.updateSensors()
+				self.robot.mover.stopWheels(r=True,l=True)
+			lastSonar = self.robot.sonarReading
+			self.updateOnLine()
+
+		self.robot.mover.stopWheels(r=True,l=True)
 
 	def go(self):
-		# follow() until self.obstacleFound == True
 		
-		lookForObject(self.follow)
+		#lookForObject(self.follow)
+		while not self.obstacleFound:
+			self.follow()
+			self.updateSonar()
+
+		self.robot.speak("found object. getting closer to object.")
+		self.goToObject()
+
 		self.robot.speak("Going to get around object.")
-		# get closer to object using PI control (necessary?)
-		# go around object
-		# find line again
-		# follow() to end of line
-		# speak complete
+		self.goAroundObject()
+
+		self.robot.speak("went around object, found line again.")
+		while self.follow():
+			pass
+
+		self.robot.speak("reached end of line")
+		self.robot.speak("done")

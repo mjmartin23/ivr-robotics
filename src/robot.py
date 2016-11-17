@@ -6,8 +6,8 @@ import ev3dev.ev3 as ev3
 import time
 import linefollow as flw
 import math
-from Odometry import *
-from Move import *
+import odometry
+import move
 
 class Robot():
 	"""docstring for Robot"""
@@ -23,16 +23,17 @@ class Robot():
 			self.sonar.connected and self.color.connected and self.servo.connected):
 			raise Exception("something isn't connected...")
 
-		# readings from environment/state of robot
-		self.gyroReading = self.gyro.value()
-		self.sonarReading = 0
-		self.colorReading = 0
+		self.mover = move.Move(self)
+		self.odometry = odometry.Odometry(self)
 
+		# readings from environment/state of robot
+		self.odometry.updateSensors(l=True,r=True)
+
+		# robot's position in space
 		self.x = 0
 		self.y = 0
 		self.theta = self.gyroReading
 		
-		self.servoDirection = 'left'
 		self.servo.run_to_abs_pos(position_sp=0,duty_cycle_sp=25)
 
 		self.init_pos_r = self.rMotor.position
@@ -40,14 +41,10 @@ class Robot():
 
 		self.rel_pos_r = self.rMotor.position
 		self.rel_pos_l = self.lMotor.position
-		
-		self.updateSensors()
-
 
 		# following state
 		self.follower = flw.CircleFollower(self)
 
-		self.state = "initialized"
 		#Length between Rob's wheels
 		self.lbw = 100*math.pi/11
 
@@ -59,11 +56,9 @@ class Robot():
 	def go(self):
 		self.follower.go()
 
-	def speakState(self):
-		ev3.Sound.speak(self.state)
-
 	def speak(self,string):
 		ev3.Sound.speak(string)
+
 if __name__ == '__main__':
 	r = Robot()
 	r.go()

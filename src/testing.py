@@ -6,11 +6,61 @@
 from robot import *
 import time
 
+def findMotorPositionToMillimeters():
+    rob = Robot()
+    dists = range(50,500,50)
+    results = "commandedMotorClicks,actualMotorClicksL,actualMotorClicksR,mmTraveled\n"
+    for dist in dists:
+        initialDistance = rob.sonar.value()
+        initialLeftMotor = rob.lMotor.position
+        initialRightMotor = rob.rMotor.position
+        rob.lMotor.run_to_rel_pos(position_sp=dist,duty_cycle_sp=25)
+        rob.rMotor.run_to_rel_pos(position_sp=dist,duty_cycle_sp=25)
+        while rob.lMotor.state and rob.rMotor.state:
+            pass
+        time.sleep(0.5)
+        endLeftMotor = rob.lMotor.position
+        endRightMotor = rob.rMotor.position
+        endDistance = rob.sonar.value()
+        results += str(dist) + "," + str(endLeftMotor-initialLeftMotor) + "," + str(endRightMotor-initialRightMotor) + "," + str(initialDistance-endDistance) + "\n"
+        rob.lMotor.run_to_rel_pos(position_sp=-dist,duty_cycle_sp=25)
+        rob.rMotor.run_to_rel_pos(position_sp=-dist,duty_cycle_sp=25)
+        while rob.lMotor.state and rob.rMotor.state:
+            pass
+        time.sleep(0.5)
+    f = open("motorDistance.txt","w")
+    f.write(results)
+    f.close()
+
+def findMotorTurningToDegrees():
+    rob = Robot()
+    dists = range(50,500,50)
+    results = "commandedMotorClicks,actualMotorClicksL,actualMotorClicksR,angleTurned\n"
+    for dist in dists:
+        initialAngle = rob.gyro.value()
+        initialLeftMotor = rob.lMotor.position
+        initialRightMotor = rob.rMotor.position
+        rob.lMotor.run_to_rel_pos(duty_cycle_sp=25,position_sp=dist)
+        rob.rMotor.run_to_rel_pos(duty_cycle_sp=25,position_sp=-dist)
+        while rob.lMotor.state and rob.rMotor.state:
+            pass
+        time.sleep(0.5)
+        endLeftMotor = rob.lMotor.position
+        endRightMotor = rob.rMotor.position
+        endAngle = rob.gyro.value()
+        results += str(dist) + "," + str(endLeftMotor-initialLeftMotor) + "," + str(endRightMotor-initialRightMotor) + "," + str(initialAngle-endAngle) + "\n"
+        rob.lMotor.run_to_rel_pos(position_sp=-dist,duty_cycle_sp=25)
+        rob.rMotor.run_to_rel_pos(position_sp=-dist,duty_cycle_sp=25)
+        while rob.lMotor.state and rob.rMotor.state:
+            pass
+        time.sleep(0.5)
+    f = open("rotationDistance.txt","w")
+    f.write(results)
+    f.close()
+
 def forwards():
-    percs = range(1,11)
-    percs = [5*p + 20 for p in percs]
-    times = range(1,6)
-    times = [1000*t for t in times]
+    percs = range(25,55,5)
+    times = range(1000,6000,1000)
     results=''
     rob = Robot()
 
@@ -61,4 +111,7 @@ def turning():
     rotation_results.close()
 
 if __name__ == '__main__':
-    turning()
+    #findMotorPositionToMillimeters()
+    #findMotorTurningToDegrees()
+    #forwards()
+    #turning()

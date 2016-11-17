@@ -32,6 +32,8 @@ def updateOdometry(rob,action):
 		radius = rob.lbw
 		rob.x = radius*math.cos(theta) + rob.x
 		rob.y = radius*math.sin(theta) + rob.y
+	elif action == 'turning_on_spot':
+		pass
 	else:
 		#Retrieving previous left and right motor positions and direction of Rob
 		l = rob.rw_pos

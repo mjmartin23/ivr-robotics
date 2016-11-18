@@ -3,6 +3,7 @@
 # LineFollower parent class and child classes
 
 import time
+import pid
 
 class LineFollower():
 	"""robot should be of type Robot"""
@@ -10,12 +11,25 @@ class LineFollower():
 		self.robot = robot
 		# True if robot on line False otherwise
 		self.updateOnLine()
+		self.pid = pid.PID()
 
 	def updateOnLine(self):
 		self.robot.odometry.updateSensors()
-		self.onLine = self.robot.colorReading < 25
+		if self.robot.colorReading < 15:
+			self.onLine = 1
+		elif self.robot.colorReading > 45:
+			self.onLine = -1
+		else:
+			self.onLine = 0
 
-	def follow(self,side="right"):
+	def updateSonar(self):
+		# 10 is arbitrary - we'll have to tune
+		# self.robot.sonarReading is in centimeters
+		self.robot.mover.rotateServo()
+		self.robot.odometry.updateSensors()
+		self.obstacleFound = self.robot.sonarReading < 400
+
+	def follow(self,side="right",sonar=False):
 		# return True if there is more line to be followed
 		# return False if we got to the end of the line
 		#
@@ -27,26 +41,49 @@ class LineFollower():
 		# assuming a curve that is curving to the left,
 		# turn forward when self.onLine = True,
 		# turn left when self.onLine = False
-		i = 0
-		maxTurn = 45
-		if self.onLine:
-			while self.onLine:
-				if side == "right":
-					self.robot.mover.rotate_right(speed=30,time=50,loop=False)
-				else:
-					self.robot.mover.rotate_left(speed=30,time=50,loop=False)
-				self.updateOnLine()
-		else:
-			while not self.onLine and i < maxTurn:
-				if side == "right":
-					self.robot.mover.rotate_left(speed=30,time=50,loop=False)
-				else:
-					self.robot.mover.rotate_right(speed=30,time=50,loop=False)
-				self.updateOnLine()
-				i += 1
+		# i = 0
+		# maxTurn = 45
+		# if self.onLine:
+		# 	while self.onLine:
+		# 		if side == "right":
+		# 			self.robot.mover.rotate_right(speed=30,time=50,loop=False)
+		# 		else:
+		# 			self.robot.mover.rotate_left(speed=30,time=50,loop=False)
+		# 		self.updateOnLine()
+		# else:
+		# 	while not self.onLine and i < maxTurn:
+		# 		if side == "right":
+		# 			self.robot.mover.rotate_left(speed=30,time=50,loop=False)
+		# 		else:
+		# 			self.robot.mover.rotate_right(speed=30,time=50,loop=False)
+		# 		self.updateOnLine()
+		# 		i += 1
+		#
+		# return i < maxTurn or self.onLine
 
-		return i < maxTurn or self.onLine
+		############
 
+		self.pid.set(30)
+		done = False
+		count = 0
+		while not done:
+			self.robot.odometry.updateSensors()
+			self.pid.update(self.robot.gyroReading)
+			out = self.pid.output
+			count = 0 if out > 0 else count + 1
+			if count > 50:
+				break
+			if side == 'left':
+				self.robot.lMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
+				self.robot.rMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)
+			else:
+				self.robot.lMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)
+				self.robot.rMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
+			if sonar:
+				self.updateSonar()
+				if self.obstacleFound:
+					break
+		self.robot.mover.stopWheels(r=True,l=True,update=False)
 
 	def go(self):
 		# implement in child classes
@@ -61,8 +98,9 @@ class CircleFollower(LineFollower):
 	def go(self):
 		# keep following the circle until reaches end of line
 		self.robot.speak("following curved line")
-		while self.follow():
-			pass
+		# while self.follow():
+		# 	pass
+		self.follow()
 		self.robot.speak("done")
 		print 'done'
 
@@ -81,8 +119,8 @@ class BrokenLineFollower(LineFollower):
 			# follow() until reach end of line
 			self.robot.speak("following line %d" % (self.linesCompleted+1))
 
-			while self.follow(side):
-				pass
+			self.follow(side):
+
 			# increment self.linesCompleted
 			self.linesCompleted += 1
 			# speak end of line
@@ -143,14 +181,7 @@ class ObstacleAvoider(LineFollower):
 	"""docstring for CircleFollower"""
 	def __init__(self, robot):
 		LineFollower.__init__(self,robot)
-		self.obstacleFound = False
 
-	def updateSonar(self):
-		# 10 is arbitrary - we'll have to tune
-		# self.robot.sonarReading is in centimeters
-		self.robot.mover.rotateServo()
-		self.robot.odometry.updateSensors()
-		self.obstacleFound = self.robot.sonarReading < 400
 
 	def lookForObject(self,action=None):
 		while not self.obstacleFound:
@@ -209,14 +240,12 @@ class ObstacleAvoider(LineFollower):
 			lastSonar = self.robot.sonarReading
 			self.updateOnLine()
 
-		self.robot.mover.stopWheels(r=True,l=True)
+		self.robot.mover.stopWheels(r=True,l=True,update=False)
 
 	def go(self):
 
 		#lookForObject(self.follow)
-		while not self.obstacleFound:
-			self.follow()
-			self.updateSonar()
+		self.follow(sonar=True)
 
 		self.robot.speak("found object. getting closer to object.")
 		self.goToObject()

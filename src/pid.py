@@ -14,12 +14,15 @@ class PID:
         self.lastTime = self.currentTime
         self.interval = interval
 
-    def set(self,goal,interval = 0.01):
+    def set(self,goal,Kp=None,Ki=None,Kd=None,interval = 0.01):
         self.goal = goal
         self.lastError = goal
         self.currentTime = time.time()
         self.lastTime = self.currentTime
         self.interval = interval
+        self.Kp = Kp if Kp is not None else self.Kp
+        self.Ki = Ki if Ki is not None else self.Ki
+        self.Kd = Kd if Kd is not None else self.Kd
 
     def update(self,currentVal):
         '''returns number of units to move according to PID controller
@@ -34,7 +37,7 @@ class PID:
 
             iValue = 0
 
-            dValue = self.Kd * (deltaError/deltaTime)
+            dValue = self.Kd * deltaError
 
             self.lastTime = self.currentTime
     	    self.lastError = error

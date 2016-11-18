@@ -3,7 +3,7 @@
 # Odometry class
 
 import math
-
+import time
 class Odometry:
 	def __init__(self,robot):
 		self.robot = robot
@@ -41,11 +41,11 @@ class Odometry:
 			self.robot.rw_pos = self.robot.rMotor.position
 		if(l):
 			self.robot.lw_pos = self.robot.lMotor.position
-		robot.timeLastUpdated = time.time()
+		self.robot.timeLastUpdated = time.time()
 	def updateOdometry(self,action):
 		theta = self.robot.theta
 		if action == 'turning':
-			theta = self.robot.gyro.value()-self.robot.gyroReading
+			theta = math.pi(self.robot.gyro.value()-self.robot.gyroReading)
 			radius = self.robot.lbw
 			self.robot.x = radius*math.cos(theta) + self.robot.x
 			self.robot.y = radius*math.sin(theta) + self.robot.y
@@ -56,23 +56,26 @@ class Odometry:
 			lbw = self.robot.lbw
 			#Retrieving previous left and right motor positions and direction of Rob
 
-			pastl = self.robot.rw_pos
+			pastl = self.robot.lw_pos
 			pastr = self.robot.rw_pos
-			deltaL = self.robot.lMotor.position
-			deltaR = self.robot.rMotor.position
-			deltaTime = time.time() - self.robot.timeLastUpdated()
-			deltaC = (deltaR+deltaL)/2
-			sci = (deltaR-deltaL)/lbw
+			deltaL = self.robot.lMotor.position-pastl
+			deltaR = self.robot.rMotor.position-pastr
+			deltaTime = time.time() - self.robot.timeLastUpdated
+			deltaC = self.clicks_to_cm((deltaR+deltaL)/2)
+			sci = (self.clicks_to_cm(deltaR-deltaL/lbw))*math.pi/180
 			#alpha is the current direction of Rob
-			alpha =self.robot.gyroReading
-			theta = math.pi/2 - self.robot.theta
-			dtheta = -alpha
+			alpha =math.pi/2-self.robot.gyroReading*math.pi/180
+			theta = math.pi/2 - self.robot.theta*math.pi/180
 			#Change in direction between before and after action was taken
-			dtheta = alpha -theta
+			dtheta = theta -alpha
 
 			#Updating Rob's current belief of position
-			self.robot.x = self.robot.x + deltaC*cos(theta)
-			self.robot.y = self.robot.y + dist*math.sin(theta) + dy
-			self.robot.theta = theta
+			self.robot.x = self.robot.x + deltaC*math.cos(theta)
+			self.robot.y = self.robot.y + deltaC*math.sin(theta)
+			self.robot.theta = theta + sci
+			rv = deltaC/deltaTime
+			anglev = sci/deltaTime
+			angleVGyro = dtheta/deltaTime
+			print self.robot.x, self.robot.y, self.robot.theta, rv, anglev, angleVGyro
 
 		self.updateSensors(l = True,r = True)

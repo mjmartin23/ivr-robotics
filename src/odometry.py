@@ -44,8 +44,8 @@ class Odometry:
 		self.robot.timeLastUpdated = time.time()
 	def updateOdometry(self,action):
 		theta = self.robot.theta
-		if action == 'turning':
-			theta = math.pi(self.robot.gyro.value()-self.robot.gyroReading)
+		if action == 'turning5':
+			theta = math.pi*(self.robot.gyro.value()-self.robot.gyroReading)
 			radius = self.robot.lbw
 			self.robot.x = radius*math.cos(theta) + self.robot.x
 			self.robot.y = radius*math.sin(theta) + self.robot.y
@@ -62,7 +62,7 @@ class Odometry:
 			deltaR = self.robot.rMotor.position-pastr
 			deltaTime = time.time() - self.robot.timeLastUpdated
 			deltaC = self.clicks_to_cm((deltaR+deltaL)/2)
-			sci = (self.clicks_to_cm(deltaR-deltaL/lbw))*math.pi/180
+			sci = (self.clicks_to_cm((deltaR-deltaL)/lbw))*math.pi/180
 			#alpha is the current direction of Rob
 			alpha =math.pi/2-self.robot.gyroReading*math.pi/180
 			theta = math.pi/2 - self.robot.theta*math.pi/180

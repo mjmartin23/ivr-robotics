@@ -12,6 +12,7 @@ class LineFollower():
 		# True if robot on line False otherwise
 		self.updateOnLine()
 		self.pid = pid.PID()
+		self.obstacleFound = False
 
 	def updateOnLine(self):
 		self.robot.odometry.updateSensors()
@@ -63,26 +64,26 @@ class LineFollower():
 
 		############
 
-		self.pid.set(30)
+		self.pid.set(30,Kp=0.25,Kd=0.5)
 		done = False
 		count = 0
 		while not done:
 			self.robot.odometry.updateSensors()
 			self.pid.update(self.robot.colorReading)
 			out = self.pid.output
-			count = 0 if out > 0 else count + 1
-			if count > 50:
-				break
 			if side == 'left':
 				self.robot.lMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
 				self.robot.rMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)
 			else:
 				self.robot.lMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)
 				self.robot.rMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
+			count = 0 if out > 0 else count + 1
+			if count > 500:
+				done = True
 			if sonar:
 				self.updateSonar()
 				if self.obstacleFound:
-					break
+					done=True
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
 
 	def go(self):

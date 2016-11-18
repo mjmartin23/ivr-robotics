@@ -1,8 +1,9 @@
+#!/usr/bin/env python
 # TASK C
 import robot
-import linefollower as lfw
+import linefollow as lfw
 
 if __name__ == '__main__':
     r = robot.Robot()
-    r.changeFollowerType(lfw.ObstacleAvoider())
-    r.go_to_Object
+    r.changeFollowerType(lfw.ObstacleAvoider(r))
+    r.follower.goToObject()

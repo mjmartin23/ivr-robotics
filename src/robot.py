@@ -46,7 +46,7 @@ class Robot():
 		self.follower = flw.CircleFollower(self)
 
 		#Length between Rob's wheels
-		self.lbw = 100*math.pi/11
+		self.lbw = 50/11
 
 
 	def changeFollowerType(self,follow):

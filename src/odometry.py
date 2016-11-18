@@ -53,30 +53,28 @@ class Odometry:
 			pass
 		else:
 			#Retrieving half distance between the two wheels. Needed for calculations below.
-			lbw = self.robot.lbw
+			lbw = 180*(0.469535)/math.pi
 			#Retrieving previous left and right motor positions and direction of Rob
 
 			pastl = self.robot.lw_pos
 			pastr = self.robot.rw_pos
-
 			deltaL = self.robot.lMotor.position-pastl
 			deltaR = self.robot.rMotor.position-pastr
-
 			deltaTime = time.time() - self.robot.timeLastUpdated
-
 			deltaC = self.clicks_to_cm((deltaR+deltaL)/2)
-			sci = (self.clicks_to_cm((deltaR-deltaL)/lbw))
-			print sci
+			sci = (self.clicks_to_cm((deltaL-deltaR)/lbw))*2.5
+			print sci*180/math.pi
 			#alpha is the current direction of Rob
 			alpha =math.pi/2-self.robot.gyroReading*math.pi/180
 			theta = math.pi/2 - self.robot.theta*math.pi/180
+			print theta
 			#Change in direction between before and after action was taken
 			dtheta = theta -alpha
-			print theta *180/math.pi
+			
 			#Updating Rob's current belief of position
 			self.robot.x = self.robot.x + deltaC*math.cos(theta)
 			self.robot.y = self.robot.y + deltaC*math.sin(theta)
-			self.robot.theta = (theta + sci)*180/math.pi
+			self.robot.theta = self.robot.theta + sci*180/math.pi
 			rv = deltaC/deltaTime
 			anglev = sci/deltaTime
 			angleVGyro = dtheta/deltaTime

@@ -11,9 +11,8 @@ class LineFollower():
 		self.robot = robot
 		# True if robot on line False otherwise
 		self.updateOnLine()
-		self.pid = pid.PID()
-		self.obstacleFound = False
-
+		self.pid = pid.PID(1,1,1)
+		self.obstacleFound = self.robot.sonarReading<400
 	def updateOnLine(self):
 		self.robot.odometry.updateSensors()
 		if self.robot.colorReading < 15:
@@ -64,28 +63,26 @@ class LineFollower():
 
 		############
 
-		self.pid.set(30,Kp=0.25,Kd=0.5)
+		self.pid.set(30)
 		done = False
 		count = 0
 		while not done:
 			self.robot.odometry.updateSensors()
 			self.pid.update(self.robot.colorReading)
 			out = self.pid.output
-			out = 30 if out > 30 else out
-			out = -30 if out < -30 else out
+			count = 0 if out > 0 else count + 1
+			if count > 500:
+				break
 			if side == 'left':
 				self.robot.lMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
 				self.robot.rMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)
 			else:
 				self.robot.lMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)
 				self.robot.rMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
-			count = 0 if out > 0 else count + 1
-			if count > 500:
-				done = True
 			if sonar:
 				self.updateSonar()
 				if self.obstacleFound:
-					done=True
+					break
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
 
 	def go(self):
@@ -191,20 +188,21 @@ class ObstacleAvoider(LineFollower):
 			if(action != None):
 				action()
 			self.updateSonar()
+		self.robot.mover.stopServor()
 		self.robot.speak("Found object.")
 		return self.robot.sonarReading/10, self.robot.servoReading
 
 	def goToObject(self,safe=10):
-		robot.mover.forward(time = 50000,loop=False)
+		self.robot.mover.forward(time = 50000,loop=False)
 		dist,angle = self.lookForObject()
 		self.robot.mover.stopWheels(l =True,r=True)
 		self.robot.mover.go_to_ca(dist,angle)
 
 		# get closer to object using PD control
-		dist,angle = self.robot.sonarReading/10, self.robot.servoReading
+		#dist,angle = self.robot.sonarReading/10, self.robot.servoReading
 		# buffer of safe cm from object
-		self.robot.mover.go_to_ca(dist-safe,angle)
-		self.robot.servo.run_to_rel_pos(position_sp=0,duty_cycle_sp=25)
+		#self.robot.mover.go_to_ca(dist-safe,angle)
+		#self.robot.servo.run_to_rel_pos(position_sp=0,duty_cycle_sp=25)
 
 	def goAroundObject(self):
 		# possible algorithm:

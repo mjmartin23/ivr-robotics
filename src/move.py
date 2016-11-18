@@ -107,15 +107,19 @@ class Move:
 		if r:
 			self.robot.rMotor.stop(stop_action = 'brake')
 		if update:
-			self.robot.odometry.updateOdometry()
-
+			self.robot.odometry.updateOdometry('brake')
+	def stopServor(self):
+		self.robot.servo.stop(stop_action='brake')
 	def go_to_ca(self,distance,angle,final_angle = None):
 		self.robot.mover.rotateDegrees(angle)
-		updateOdometry
+		self.robot.odometry.updateOdometry('')
 		ti.sleep(0.5)
 		self.robot.mover.forward_till(distance)
+		self.robot.odometry.updateOdometry('')
+		ti.sleep(0.5)
 		if final_angle != None:
-			self.robot.mover.rotateDegrees(angle)
+			self.robot.mover.rotateDegrees(final_angle)
+		self.robot.odometry.updateOdometry('')
 		# self.controller.set(angle)
 		# while abs(self.controller.lastError) > 2:
 		# 	self.robot.odometry.updateSensors()

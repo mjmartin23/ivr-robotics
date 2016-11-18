@@ -119,7 +119,7 @@ class BrokenLineFollower(LineFollower):
 			# follow() until reach end of line
 			self.robot.speak("following line %d" % (self.linesCompleted+1))
 
-			self.follow(side):
+			self.follow(side)
 
 			# increment self.linesCompleted
 			self.linesCompleted += 1

@@ -110,28 +110,29 @@ class Move:
 			self.robot.odometry.updateOdometry()
 
 	def go_to_ca(self,distance,angle,final_angle = None):
-		self.controller.set(angle)
-		while abs(self.controller.lastError) > 2:
-			self.robot.odometry.updateSensors()
-			self.controller.update(robot.gyroReading)
-			self.rotateDegrees(self.controller.output)
-		time.sleep(0.5)
-
-		self.controller.set(distance)
-		initialPos = (self.robot.lMotor.position + self.robot.rMotor.position) / 2.0
-		while abs(self.controller.lastError) > 2:
-			self.robot.odometry.updateSensors()
-			self.controller.update(self.robot.odometry.clicks_to_cm( (self.robot.lMotor.position + self.robot.rMotor.position) / 2.0 ) - initialPos)
-			self.goDistance(self.controller.output)
-	    time.sleep(0.5)
-
-	    if final_angle is not None:
-			self.controller.set(final_angle)
-			while abs(self.controller.lastError) > 2:
-				self.robot.odometry.updateSensors()
-				self.controller.update(robot.gyroReading)
-				self.rotateDegrees(self.controller.output)
-			time.sleep(0.5)
+		self.robot.mover.rotate(angle)
+		# self.controller.set(angle)
+		# while abs(self.controller.lastError) > 2:
+		# 	self.robot.odometry.updateSensors()
+		# 	self.controller.update(robot.gyroReading)
+		# 	self.rotateDegrees(self.controller.output)
+		# time.sleep(0.5)
+		#
+		# self.controller.set(distance)
+		# initialPos = (self.robot.lMotor.position + self.robot.rMotor.position) / 2.0
+		# while abs(self.controller.lastError) > 2:
+		# 	self.robot.odometry.updateSensors()
+		# 	self.controller.update(self.robot.odometry.clicks_to_cm( (self.robot.lMotor.position + self.robot.rMotor.position) / 2.0 ) - initialPos)
+		# 	self.goDistance(self.controller.output)
+	    # time.sleep(0.5)
+		#
+	    # if final_angle is not None:
+		# 	self.controller.set(final_angle)
+		# 	while abs(self.controller.lastError) > 2:
+		# 		self.robot.odometry.updateSensors()
+		# 		self.controller.update(robot.gyroReading)
+		# 		self.rotateDegrees(self.controller.output)
+		# 	time.sleep(0.5)
 
 	def go_to(self,x,y,theta):
     		angle = math.atan2(y,x)*180.0/math.pi

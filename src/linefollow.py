@@ -68,7 +68,7 @@ class LineFollower():
 		count = 0
 		while not done:
 			self.robot.odometry.updateSensors()
-			self.pid.update(self.robot.gyroReading)
+			self.pid.update(self.robot.colorReading)
 			out = self.pid.output
 			count = 0 if out > 0 else count + 1
 			if count > 50:

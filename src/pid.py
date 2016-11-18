@@ -4,7 +4,7 @@ import time
 
 class PID:
     """docstring for PID"""
-    def __init__(self, Kp, Ki, Kd, goal=0, interval = 0.01):
+    def __init__(self, Kp, Ki, Kd, goal=0, interval = 0.005):
         self.Kp = Kp
         self.Ki = Ki
         self.Kd = Kd
@@ -34,9 +34,8 @@ class PID:
 
             iValue = 0
 
-            dValue = self.Kd * (deltaError/deltaTime)
+            dValue = self.Kd * deltaError
 
             self.lastTime = self.currentTime
     	    self.lastError = error
-	    print pValue,dValue
             self.output = pValue + iValue + dValue

@@ -33,7 +33,7 @@ class Robot():
 		self.x = 0
 		self.y = 0
 		self.theta = self.gyroReading
-		
+
 		self.servo.run_to_abs_pos(position_sp=0,duty_cycle_sp=25)
 
 		self.init_pos_r = self.rMotor.position
@@ -48,7 +48,7 @@ class Robot():
 		#Length between Rob's wheels
 		self.lbw = 100*math.pi/11
 
-	
+
 	def changeFollowerType(self,follow):
 		# follow is a child of LineFollower
 		self.follower = follow

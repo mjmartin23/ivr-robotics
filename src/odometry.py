@@ -22,7 +22,7 @@ class Odometry:
 
 	def clicks_to_cm(self,clicks):
 		constant = 0.4807090465
-		return clicks*constant
+		return clicks*constant/10.0
 
 	def deg_to_clicks(self,deg):
 		#return self.robot.lbw*deg/2*math.pi
@@ -62,7 +62,7 @@ class Odometry:
 			deltaR = self.robot.rMotor.position-pastr
 			deltaTime = time.time() - self.robot.timeLastUpdated
 			deltaC = self.clicks_to_cm((deltaR+deltaL)/2)
-			sci = (self.clicks_to_cm((deltaR-deltaL)/lbw))*math.pi/180
+			sci = (self.clicks_to_cm((deltaR-deltaL)/lbw))
 			#alpha is the current direction of Rob
 			alpha =math.pi/2-self.robot.gyroReading*math.pi/180
 			theta = math.pi/2 - self.robot.theta*math.pi/180
@@ -72,7 +72,7 @@ class Odometry:
 			#Updating Rob's current belief of position
 			self.robot.x = self.robot.x + deltaC*math.cos(theta)
 			self.robot.y = self.robot.y + deltaC*math.sin(theta)
-			self.robot.theta = theta + sci
+			self.robot.theta = (theta + sci)*180/math.pi
 			rv = deltaC/deltaTime
 			anglev = sci/deltaTime
 			angleVGyro = dtheta/deltaTime

@@ -2,7 +2,7 @@
 # 17/11/16
 # Move class
 
-import time
+import time as ti
 import pid
 import math
 
@@ -19,7 +19,7 @@ class Move:
 		if loop:
 			while(self.robot.lMotor.state and self.robot.rMotor.state):
 				self.robot.odometry.updateOdometry('forward')
-				time.sleep(0.1)
+				ti.sleep(0.1)
 
 	def forward_till(self,speed = 25,dist = 300,loop = True):
 		self.robot.lMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
@@ -111,27 +111,26 @@ class Move:
 
 	def go_to_ca(self,distance,angle,final_angle = None):
 		self.controller.set(angle)
-	    	while abs(self.controller.lastError) > 2:
-    			self.robot.odometry.updateSensors()
-	        	self.controller.update(robot.gyroReading)
-	        	self.rotateDegrees(self.controller.output)
+		while abs(self.controller.lastError) > 2:
+			self.robot.odometry.updateSensors()
+			self.controller.update(robot.gyroReading)
+			self.rotateDegrees(self.controller.output)
 		time.sleep(0.5)
 
 		self.controller.set(distance)
 		initialPos = (self.robot.lMotor.position + self.robot.rMotor.position) / 2.0
 		while abs(self.controller.lastError) > 2:
-    			self.robot.odometry.updateSensors()
+			self.robot.odometry.updateSensors()
 			self.controller.update(self.robot.odometry.clicks_to_cm( (self.robot.lMotor.position + self.robot.rMotor.position) / 2.0 ) - initialPos)
-			print self.controller.output
-	        	self.goDistance(self.controller.output)
-	    	time.sleep(0.5)
+			self.goDistance(self.controller.output)
+	    time.sleep(0.5)
 
-	    	if final_angle is not None:
+	    if final_angle is not None:
 			self.controller.set(final_angle)
-	    		while abs(self.controller.lastError) > 2:
-	    			self.robot.odometry.updateSensors()
-		        	self.controller.update(robot.gyroReading)
-		        	self.rotateDegrees(self.controller.output)
+			while abs(self.controller.lastError) > 2:
+				self.robot.odometry.updateSensors()
+				self.controller.update(robot.gyroReading)
+				self.rotateDegrees(self.controller.output)
 			time.sleep(0.5)
 
 	def go_to(self,x,y,theta):
@@ -150,5 +149,3 @@ class Move:
 			self.robot.servo.run_timed(time_sp=10000,duty_cycle_sp=-25)
 		else:
 			self.robot.servo.run_timed(time_sp=10000,duty_cycle_sp=25)
-
-	

@@ -41,7 +41,7 @@ class Odometry:
 			self.robot.rw_pos = self.robot.rMotor.position
 		if(l):
 			self.robot.lw_pos = self.robot.lMotor.position
-
+		robot.timeLastUpdated = time.time()
 	def updateOdometry(self,action):
 		theta = self.robot.theta
 		if action == 'turning':
@@ -52,34 +52,26 @@ class Odometry:
 		elif action == 'turning_on_spot':
 			pass
 		else:
-			#Retrieving previous left and right motor positions and direction of Rob
-			l = self.robot.rw_pos
-			r = self.robot.rw_pos
-			theta = self.robot.theta
 			#Retrieving half distance between the two wheels. Needed for calculations below.
-			radius = self.robot.lbw/2
-			diff = l-r
-			#Case when the left wheel went further than the right
-			if diff>0:
-				#dist is the distance the left and right wheel travelled together on a straight line
-				dist = r
-			else:
-				dist = l
+			lbw = self.robot.lbw
+			#Retrieving previous left and right motor positions and direction of Rob
 
+			pastl = self.robot.rw_pos
+			pastr = self.robot.rw_pos
+			deltaL = self.robot.lMotor.position
+			deltaR = self.robot.rMotor.position
+			deltaTime = time.time() - self.robot.timeLastUpdated()
+			deltaC = (deltaR+deltaL)/2
+			sci = (deltaR-deltaL)/lbw
 			#alpha is the current direction of Rob
 			alpha =self.robot.gyroReading
-
+			theta = math.pi/2 - self.robot.theta
+			dtheta = -alpha
 			#Change in direction between before and after action was taken
 			dtheta = alpha -theta
 
-			#Adjusting sign of radius is necessary for calculations. See report for further details.
-			if alpha < 0:
-				radius = -radius
-			#Calculatng change in x and y after Rob finishes straight line and begins to turn
-			dx = radius - radius*math.cos(dtheta)
-			dy = radius + math.sin(dtheta)
 			#Updating Rob's current belief of position
-			self.robot.x = self.robot.x + dist*math.cos(theta) + dx
+			self.robot.x = self.robot.x + deltaC*cos(theta)
 			self.robot.y = self.robot.y + dist*math.sin(theta) + dy
 			self.robot.theta = theta
 

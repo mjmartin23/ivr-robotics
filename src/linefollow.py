@@ -11,7 +11,7 @@ class LineFollower():
 		self.robot = robot
 		# True if robot on line False otherwise
 		self.updateOnLine()
-		self.pid = pid.PID()
+		self.pid = pid.PID(1,1,1)
 
 	def updateOnLine(self):
 		self.robot.odometry.updateSensors()
@@ -63,7 +63,7 @@ class LineFollower():
 
 		############
 
-		self.pid.set(30)
+		self.pid.set(30,Kp=)
 		done = False
 		count = 0
 		while not done:
@@ -71,7 +71,7 @@ class LineFollower():
 			self.pid.update(self.robot.colorReading)
 			out = self.pid.output
 			count = 0 if out > 0 else count + 1
-			if count > 50:
+			if count > 500:
 				break
 			if side == 'left':
 				self.robot.lMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)

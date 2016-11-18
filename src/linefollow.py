@@ -192,10 +192,10 @@ class ObstacleAvoider(LineFollower):
 		return self.robot.sonarReading/10, self.robot.servoReading
 
 	def goToObject(self,safe=10):
-		# robot.mover.forward(time = 50000,loop=False)
-		# dist,angle = self.lookForObject()
-		# self.robot.mover.stopWheels(l =True,r=True)
-		# self.robot.mover.go_to_ca(dist,angle)
+		robot.mover.forward(time = 50000,loop=False)
+		dist,angle = self.lookForObject()
+		self.robot.mover.stopWheels(l =True,r=True)
+		self.robot.mover.go_to_ca(dist,angle)
 
 		# get closer to object using PD control
 		dist,angle = self.robot.sonarReading/10, self.robot.servoReading

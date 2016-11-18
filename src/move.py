@@ -110,7 +110,12 @@ class Move:
 			self.robot.odometry.updateOdometry()
 
 	def go_to_ca(self,distance,angle,final_angle = None):
-		self.robot.mover.rotate(angle)
+		self.robot.mover.rotateDegrees(angle)
+		updateOdometry
+		ti.sleep(0.5)
+		self.robot.mover.forward_till(distance)
+		if final_angle != None:
+			self.robot.mover.rotateDegrees(angle)
 		# self.controller.set(angle)
 		# while abs(self.controller.lastError) > 2:
 		# 	self.robot.odometry.updateSensors()

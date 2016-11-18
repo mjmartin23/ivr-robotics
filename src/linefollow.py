@@ -71,6 +71,8 @@ class LineFollower():
 			self.robot.odometry.updateSensors()
 			self.pid.update(self.robot.colorReading)
 			out = self.pid.output
+			out = 30 if out > 30 else out
+			out = -30 if out < -30 else out
 			if side == 'left':
 				self.robot.lMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
 				self.robot.rMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)

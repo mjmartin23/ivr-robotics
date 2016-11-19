@@ -63,21 +63,21 @@ class Odometry:
 			deltaTime = time.time() - self.robot.timeLastUpdated
 			deltaC = self.clicks_to_cm((deltaR+deltaL)/2)
 			sci = (self.clicks_to_cm((deltaL-deltaR)/lbw))*2.5
-			print sci*180/math.pi
+			#print sci*180/math.pi
 			#alpha is the current direction of Rob
 			alpha =math.pi/2-self.robot.gyroReading*math.pi/180
 			theta = math.pi/2 - self.robot.theta*math.pi/180
-			print theta
+			#print theta
 			#Change in direction between before and after action was taken
 			dtheta = theta -alpha
-			
+
 			#Updating Rob's current belief of position
 			self.robot.x = self.robot.x + deltaC*math.cos(theta)
 			self.robot.y = self.robot.y + deltaC*math.sin(theta)
 			self.robot.theta = self.robot.theta + sci*180/math.pi
-			rv = deltaC/deltaTime
+			self.robot.rv = deltaC/deltaTime
 			anglev = sci/deltaTime
-			angleVGyro = dtheta/deltaTime
-			print self.robot.x, self.robot.y, self.robot.theta, rv, anglev, angleVGyro
+			self.robot.angleVGyro = dtheta/deltaTime
+			#print self.robot.x, self.robot.y, self.robot.theta, rv, anglev, angleVGyro
 
 		self.updateSensors(l = True,r = True)

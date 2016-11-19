@@ -22,8 +22,11 @@ class Move:
 				ti.sleep(0.1)
 
 	def forward_till(self,speed = 25,dist = 300,loop = True):
-		self.robot.lMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
-		self.robot.rMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
+		try:
+			self.robot.lMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
+			self.robot.rMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
+		except Exception as e:
+			pass
 		if loop:
 			while(self.robot.lMotor.state and self.robot.rMotor.state):
 				pass
@@ -98,8 +101,10 @@ class Move:
 		self.rotate(clicks)
 		if loop:
 			while(self.robot.lMotor.state and self.robot.rMotor.state):
-				pass
-			self.robot.odometry.updateOdometry('forward')
+				self.robot.odometry.updateOdometry('rotate')
+				ti.sleep(0.1)
+			self.robot.odometry.updateOdometry('rotate')
+
 
 	def stopWheels(self, l=False,r=False,update=True):
 		if l:
@@ -114,6 +119,7 @@ class Move:
 		self.robot.mover.rotateDegrees(angle)
 		self.robot.odometry.updateOdometry('')
 		ti.sleep(0.5)
+
 		self.robot.mover.forward_till(distance)
 		self.robot.odometry.updateOdometry('')
 		ti.sleep(0.5)

@@ -12,6 +12,7 @@ class LineFollower():
 		# True if robot on line False otherwise
 		self.updateOnLine()
 		self.pid = pid.PID(1,1,1)
+		self.obstacleFound=False
 
 	def updateOnLine(self):
 		self.robot.odometry.updateSensors()
@@ -63,7 +64,7 @@ class LineFollower():
 
 		############
 
-		self.pid.set(30,Kp=)
+		self.pid.set(30)
 		done = False
 		count = 0
 		while not done:
@@ -184,7 +185,7 @@ class ObstacleAvoider(LineFollower):
 
 
 	def lookForObject(self,action=None):
-		while not self.obstacleFound:
+		while not LineFollower.obstacleFound:
 			if(action != None):
 				action()
 			self.updateSonar()

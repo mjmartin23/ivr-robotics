@@ -13,6 +13,7 @@ class PID:
         self.currentTime = time.time()
         self.lastTime = self.currentTime
         self.interval = interval
+        self.output = 0
 
     def set(self,goal,Kp=None,Ki=None,Kd=None,interval = 0.01):
         self.goal = goal

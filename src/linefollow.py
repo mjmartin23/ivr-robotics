@@ -79,17 +79,20 @@ class LineFollower():
 		#		if i>45:
 		#			return True
 		#	self.updateOnLine()
-		self.pid.set(30)
+
+		self.pid.set(30,Ki=0.25,Kd=0.5)
 		done = False
 		count = 0
 		while not done:
 			self.robot.odometry.updateSensors()
 			self.pid.update(self.robot.colorReading)
 			out = self.pid.output
-			if out +30 > 100:
-				out = 70
-			elif out -30 <-100:
-				out = -70
+			# if out +30 > 100:
+			# 	out = 70
+			# elif out -30 <-100:
+			# 	out = -70
+			# shorter (maybe less readable though) below:
+			out = max(min(out,70),-70)
 			count = 0 if out > 0 else count + 1
 			if count > 500:
 				break
@@ -292,29 +295,45 @@ class ObstacleAvoider(LineFollower):
 			pass
 
 		self.robot.odometry.updateSensors()
-		lastSonar = self.robot.sonarReading
-		while not self.onLine:
-			# go forward a small amount
-			# if object is no longer there
-			# 	go forward another small amount to be sure turning doesn't collide
-			#	turn left 90 degrees
-			#	go forward till we find the object again
-			if self.robot.sonarReading < 200:
-				# we're getting dangerously close to the object, turn right a little
-				self.robot.speak("got too close to object, turning right")
-				self.robot.mover.rotateClockwise(10)
+		# lastSonar = self.robot.sonarReading
+		# while not self.onLine:
+		# 	# go forward a small amount
+		# 	# if object is no longer there
+		# 	# 	go forward another small amount to be sure turning doesn't collide
+		# 	#	turn left 90 degrees
+		# 	#	go forward till we find the object again
+		# 	if self.robot.sonarReading < 200:
+		# 		# we're getting dangerously close to the object, turn right a little
+		# 		self.robot.speak("got too close to object, turning right")
+		# 		self.robot.mover.rotateClockwise(10)
 
-			self.robot.mover.forward_till(dist=100,loop=False)
+		# 	self.robot.mover.forward_till(dist=100,loop=False)
+		# 	self.robot.odometry.updateSensors()
+		# 	if self.robot.sonarReading - lastSonar > 1000:
+		# 		self.robot.mover.forward_till(dist=500)
+		# 		self.robot.rotateDegrees(-90)
+		# 		self.robot.odometry.updateSensors()
+		# 		while self.robot.sonarReading > 500:
+		# 			self.robot.mover.forward_till(dist=200,loop=False)
+		# 			self.robot.odometry.updateSensors()
+		# 		self.robot.mover.stopWheels(r=True,l=True)
+		# 	lastSonar = self.robot.sonarReading
+		# 	self.updateOnLine()
+
+
+		#####
+
+		# trying to use PID - cleaner solution:
+		# just set the pid goal as the sonar reading.
+		self.pid.set(self.robot.sonarReading,Kp=0.25,Kd=0.5)
+		self.updateOnLine()
+		while not self.onLine:
 			self.robot.odometry.updateSensors()
-			if self.robot.sonarReading - lastSonar > 1000:
-				self.robot.mover.forward_till(dist=500)
-				self.robot.rotateDegrees(-90)
-				self.robot.odometry.updateSensors()
-				while self.robot.sonarReading > 500:
-					self.robot.mover.forward_till(dist=200,loop=False)
-					self.robot.odometry.updateSensors()
-				self.robot.mover.stopWheels(r=True,l=True)
-			lastSonar = self.robot.sonarReading
+			self.pid.update(self.robot.sonarReading)
+			out = self.pid.output
+			out = max(min(out,45),-45)
+			self.robot.lMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)
+			self.robot.rMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
 			self.updateOnLine()
 
 		self.robot.mover.stopWheels(r=True,l=True,update=False)

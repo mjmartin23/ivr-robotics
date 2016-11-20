@@ -4,17 +4,19 @@ import time
 
 class PID:
     """docstring for PID"""
-    def __init__(self, Kp, Ki, Kd, goal=0, interval = 0.005):
+    def __init__(self, Kp=1, Ki=1, Kd=1, goal=0, interval = 0.005):
         self.Kp = Kp
         self.Ki = Ki
         self.Kd = Kd
         self.goal = goal
         self.lastError = goal
+        self.windup = goal*3
         self.currentTime = time.time()
         self.lastTime = self.currentTime
         self.interval = interval
+        self.output = 0
 
-    def set(self,goal,Kp=None,Ki=None,Kd=None,interval = 0.01):
+    def set(self,goal,Kp=None,Ki=None,Kd=None,interval = 0.005):
         self.goal = goal
         self.lastError = goal
         self.currentTime = time.time()
@@ -35,7 +37,9 @@ class PID:
         if deltaTime >= self.interval:
             pValue = self.Kp * error
 
-            iValue = 0
+            iValue += error
+            iValue = min(max(-self.windup),error,self.windup)
+            iValue *= self.Ki
 
             dValue = self.Kd * deltaError
 

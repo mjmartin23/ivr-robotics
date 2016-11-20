@@ -11,7 +11,7 @@ class LineFollower():
 		self.robot = robot
 		# True if robot on line False otherwise
 		self.updateOnLine()
-		self.pid = pid.PID(1,1,1)
+		self.pid = pid.PID()
 		self.obstacleFound = self.robot.sonarReading<400
 	def updateOnLine(self):
 		self.robot.odometry.updateSensors()
@@ -80,7 +80,7 @@ class LineFollower():
 		#			return True
 		#	self.updateOnLine()
 
-		self.pid.set(30,Ki=0.25,Kd=0.5)
+		self.pid.set(30,Kp=0.25,Ki=0.1,Kd=0.5)
 		done = False
 		count = 0
 		while not done:
@@ -325,7 +325,7 @@ class ObstacleAvoider(LineFollower):
 
 		# trying to use PID - cleaner solution:
 		# just set the pid goal as the sonar reading.
-		self.pid.set(self.robot.sonarReading,Kp=0.25,Kd=0.5)
+		self.pid.set(self.robot.sonarReading,Kp=0.25,Ki=0.1,Kd=0.5)
 		self.updateOnLine()
 		while not self.onLine:
 			self.robot.odometry.updateSensors()

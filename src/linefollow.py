@@ -206,7 +206,7 @@ class BrokenLineFollower(LineFollower):
 			while self.onLine:
 				self.robot.mover.rotateClockwise(self.robot.odometry.deg_to_clicks(50),loop=False)
 				self.updateOnLine()
-				self.robot.odometry.updateOdometry
+				self.robot.odometry.updateOdometry('')
 			self.robot.mover.stopWheels(r=True,l=True,update=False)
 
 
@@ -350,8 +350,7 @@ class ObstacleAvoider(LineFollower):
 		self.goAroundObject()
 
 		self.robot.speak("went around object, found line again.")
-		while self.follow():
-			pass
+		self.follow():
 
 		self.robot.speak("reached end of line")
 		self.robot.speak("done")

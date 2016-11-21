@@ -26,7 +26,7 @@ class Move:
 			self.robot.lMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
 			self.robot.rMotor.run_to_rel_pos(duty_cycle_sp=speed,position_sp=dist )
 		except Exception as e:
-			pass
+			raise e
 		if loop:
 			while(self.robot.lMotor.state and self.robot.rMotor.state):
 				pass
@@ -48,7 +48,7 @@ class Move:
 	def rotate_left(self,speed=25,time=500,loop = True):
 		self.robot.rMotor.run_timed(duty_cycle_sp=speed, time_sp=time)
 		if loop:
-			while(self.robot.lMotor.state):
+			while(self.robot.rMotor.state):
 				pass
 			self.robot.odometry.updateOdometry('turning')
 
@@ -113,9 +113,11 @@ class Move:
 			self.robot.rMotor.stop(stop_action = 'brake')
 		if update:
 			self.robot.odometry.updateOdometry('brake')
+
 	def stopServor(self):
 		self.robot.servo.stop(stop_action='brake')
-	def go_to_ca(self,distance,angle,final_angle = None):
+
+	def go_to_ca(self,distance,angle,final_angle = None`):
 		self.robot.mover.rotateDegrees(angle)
 		self.robot.odometry.updateOdometry('')
 		ti.sleep(0.5)

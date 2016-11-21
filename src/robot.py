@@ -23,10 +23,13 @@ class Robot():
 			self.sonar.connected and self.color.connected and self.servo.connected):
 			raise Exception("something isn't connected...")
 
+		self.resetAllPositions()
+
 		self.mover = move.Move(self)
 		self.odometry = odometry.Odometry(self)
 
 		# readings from environment/state of robot
+		self.initialGyro = self.gyro.value()
 		self.odometry.updateSensors(l=True,r=True)
 
 		# robot's position in space
@@ -48,6 +51,10 @@ class Robot():
 		#Length between Rob's wheels
 		self.lbw = 50/11
 
+	def resetAllPositions(self):
+		self.lMotor.position = 0
+		self.rMotor.position = 0
+		self.servo.position = 0
 
 	def changeFollowerType(self,follow):
 		# follow is a child of LineFollower
@@ -57,7 +64,10 @@ class Robot():
 		self.follower.go()
 
 	def speak(self,string):
-		ev3.Sound.speak(string)
+		try:
+			ev3.Sound.speak(string)
+		except Exception:
+			pass
 
 if __name__ == '__main__':
 	r = Robot()

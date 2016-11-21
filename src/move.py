@@ -10,7 +10,7 @@ class Move:
 	"""docstring for Move"""
 	def __init__(self, robot):
 		self.robot = robot
-		self.controller = pid.PID(1,1,1)
+		self.pid = pid.PID(1,1,1)
 		self.servoDirection = 'left'
 
 	def forward(self,speed=25,time=500,loop = True):
@@ -108,18 +108,23 @@ class Move:
 	def rotatePID(self,degrees):
 		done = False
 		self.robot.odometry.updateOdometry('')
-		self.controller.set(degrees,Kp=0.5,Ki=0.01,Kd=0.75)
+		self.pid.set(degrees,Kp=0.95,Ki=0.25,Kd=0.5,window=5)
 		initialAngle = self.robot.gyroReading
+		stable = 0
 		while not done:
 			self.robot.odometry.updateOdometry('')
-			self.controller.update(self.robot.gyroReading - initialAngle)
-			out = self.controller.out
-
+			curAngle = self.robot.gyroReading-initialAngle
+			self.pid.update(curAngle)
+			out = self.pid.output
+			print 'o',out
+			out = max(min(out,100),-100)
 			self.robot.lMotor.run_timed(duty_cycle_sp=0+out,time_sp=50)
 			self.robot.rMotor.run_timed(duty_cycle_sp=0-out,time_sp=50)
-
-			if abs(out) < 1:
-				break
+			print curAngle
+			if abs(degrees-curAngle) < 4:
+				stable += 1
+			if stable > 5:
+				done = True
 
 
 	def stopWheels(self, l=False,r=False,update=True):
@@ -133,7 +138,7 @@ class Move:
 	def stopServor(self):
 		self.robot.servo.stop(stop_action='brake')
 
-	def go_to_ca(self,distance,angle,final_angle = None`):
+	def go_to_ca(self,distance,angle,final_angle = None):
 		self.robot.mover.rotateDegrees(angle)
 		self.robot.odometry.updateOdometry('')
 		ti.sleep(0.5)
@@ -144,27 +149,27 @@ class Move:
 		if final_angle != None:
 			self.robot.mover.rotateDegrees(final_angle)
 		self.robot.odometry.updateOdometry('')
-		# self.controller.set(angle)
-		# while abs(self.controller.lastError) > 2:
+		# self.pid.set(angle)
+		# while abs(self.pid.lastError) > 2:
 		# 	self.robot.odometry.updateSensors()
-		# 	self.controller.update(robot.gyroReading)
-		# 	self.rotateDegrees(self.controller.output)
+		# 	self.pid.update(robot.gyroReading)
+		# 	self.rotateDegrees(self.pid.output)
 		# time.sleep(0.5)
 		#
-		# self.controller.set(distance)
+		# self.pid.set(distance)
 		# initialPos = (self.robot.lMotor.position + self.robot.rMotor.position) / 2.0
-		# while abs(self.controller.lastError) > 2:
+		# while abs(self.pid.lastError) > 2:
 		# 	self.robot.odometry.updateSensors()
-		# 	self.controller.update(self.robot.odometry.clicks_to_cm( (self.robot.lMotor.position + self.robot.rMotor.position) / 2.0 ) - initialPos)
-		# 	self.goDistance(self.controller.output)
+		# 	self.pid.update(self.robot.odometry.clicks_to_cm( (self.robot.lMotor.position + self.robot.rMotor.position) / 2.0 ) - initialPos)
+		# 	self.goDistance(self.pid.output)
 	    # time.sleep(0.5)
 		#
 	    # if final_angle is not None:
-		# 	self.controller.set(final_angle)
-		# 	while abs(self.controller.lastError) > 2:
+		# 	self.pid.set(final_angle)
+		# 	while abs(self.pid.lastError) > 2:
 		# 		self.robot.odometry.updateSensors()
-		# 		self.controller.update(robot.gyroReading)
-		# 		self.rotateDegrees(self.controller.output)
+		# 		self.pid.update(robot.gyroReading)
+		# 		self.rotateDegrees(self.pid.output)
 		# 	time.sleep(0.5)
 
 	def go_to(self,x,y,theta):

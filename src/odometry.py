@@ -31,10 +31,11 @@ class Odometry:
 
 	def updateSensors(self, l=False,r=False,g=True,s=True,c=True):
 		if(g):
-			val = (self.robot.gyro.value()-self.robot.initialGyro) % 360
-			if val > 180:
-				val = val - 360
-			self.robot.gyroReading = val
+			# val = (self.robot.gyro.value()-self.robot.initialGyro) % 360
+			# if val > 180:
+			# 	val = val - 360
+			# self.robot.gyroReading = val
+			self.robot.gyroReading = self.robot.gyro.value()
 		if(s):
 			self.robot.sonarReading = self.robot.sonar.value()
 			self.robot.servoReading = self.robot.servo.position

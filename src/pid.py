@@ -13,18 +13,19 @@ class PID:
         self.dValue = 0
         self.goal = goal
         self.lastError = goal
-        self.window = 500
+        self.window = 7
         self.iQueue = []
         self.currentTime = time.time()
         self.lastTime = self.currentTime
         self.interval = interval
         self.output = 0
 
-    def set(self,goal,Kp=None,Ki=None,Kd=None,interval = 0.005):
+    def set(self,goal,Kp=None,Ki=None,Kd=None,interval = 0.005,window=7):
         self.pValue = 0
         self.iValue = 0
         self.dValue = 0
         self.goal = goal
+        self.window = window
         self.lastError = goal
         self.currentTime = time.time()
         self.lastTime = self.currentTime
@@ -43,18 +44,17 @@ class PID:
         deltaError = error - self.lastError
 
         if deltaTime >= self.interval:
+            print 'e',error
             self.pValue = self.Kp * error
 
-            self.iValue += error
-            if len(self.iQueue) < self.window:
-                self.iQueue.append(error)
-            else:
-                self.iQueue.append(error)
-                self.iValue -= self.iQueue.pop(0)
-            self.iValue *= self.Ki
+            self.iQueue.append(error)
+            if len(self.iQueue) >= self.window:
+                self.iQueue.pop(0)
+            self.iValue = sum(self.iQueue) * self.Ki
 
             self.dValue = self.Kd * deltaError
 
             self.lastTime = self.currentTime
     	    self.lastError = error
+            print self.pValue,self.iValue,self.dValue
             self.output = self.pValue + self.iValue + self.dValue

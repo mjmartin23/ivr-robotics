@@ -6,15 +6,9 @@
 
 \usepackage{amssymb,amsmath,textcomp} %These are optional packages you can install which gives you more mathematical symbols to play with
 
-\usepackage{graphicx,subfig,enumerate,rotating} 
+\usepackage{graphicx,subfig,enumerate,rotating,listings} 
 \graphicspath{{img/}}
 
-
-%%%%%%%%%%%%%%%%%
-% CUSTOM COMMANDS
-
-
-%%%%%%%%%%%%%%%%%
 
 
 \title{Introduction to Vision and Robotics\\Robotics Practical: Line Follower}
@@ -49,7 +43,6 @@
 %				problems with the sonar pointing at the corner of the box - it wan't reading that as being close to the robot due to what we talked about in lecture about donar getting deflected not perpendicularly
 %			finding the line again
 
-
 % Results
 %	Data from testing of robot
 %		PID graphs for line following and obstacle avoiding
@@ -65,13 +58,47 @@
 
 \begin{document}
 	
+%%%%%%%%%%%%%%%%%
+% CUSTOM COMMANDS
+\newcommand{\code}[1]{
+	\lstinline[basicstyle=\ttfamily]|#1|	
+}
+
+%%%%%%%%%%%%%%%%%
+	
 \maketitle
 
 \section{Introduction}
 
+The purpose of this practical is to learn about controlling a four-wheeled robot within a known environment. We used Lego's EV3 Python toolkit, assembling our own robot and developing all the robot code in Python. The robot is meant to accomplish three tasks:
+
+\begin{itemize}
+	\item Follow a curved line from beginning to end
+	\item Follow a set of broken and staggered lines, going from one line to the next
+	\item Complete a lap of a closed circuit while circumventing an object placed in the path of the robot
+\end{itemize}
 
 \section{Methods}
 
+We approached these tasks in a series of steps. First, we tried to gain familiarity with the operation of the robot by performing several tests on it to see its movement based on commands that were sent to it. Then, using this information, we developed a system of odometry and dead-reckoning. Finally, we solved the tasks sequentially, as each subsequent task built on some of the methods developed in the prior task.
+
+\subsection{Testing}
+
+We conducted several tests in order to get consistency in how the commands that were sent to the robot translate to actual distance moved in the world.
+
+First, we ran the motors for a series of durations using \code{run\_to_rel\_pos()} keeping the \code{duty\_cycle\_sp} parameter constant at 25\%. These durations were in the unit of tacho counts, which is how the rotary encoder inside the motor measures turns. We performed tests at 25\% power for tacho counts of 100 to 700, incremented by 50. See Figure \ref{fig:motorDistance} for this data. From these tests and the slope of the trend line observed, we concluded that for forward commands we can convert from centimeters to tacho counts by performing the following calculation:
+
+\[tachoCounts=\frac{centimeters}{4.807090465}\].
+
+\subsection{Odometry and Dead Reckoning}
+
+\subsection{Tasks}
+
+\subsubsection{Line following}
+
+\subsubsection{Staggered line navigation}
+
+\subsubsection{Obstacle avoidance}
 
 \section{Results}
 

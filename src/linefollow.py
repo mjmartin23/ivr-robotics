@@ -33,50 +33,7 @@ class LineFollower():
 		# will put it in a while loop
 
 
-		# assuming a curve that is curving to the left,
-		# turn forward when self.onLine = True,
-		# turn left when self.onLine = False
-		# i = 0
-		# maxTurn = 45
-		# if self.onLine:
-		# 	while self.onLine:
-		# 		if side == "right":
-		# 			self.robot.mover.rotate_right(speed=30,time=50,loop=False)
-		# 		else:
-		# 			self.robot.mover.rotate_left(speed=30,time=50,loop=False)
-		# 		self.updateOnLine()
-		# else:
-		# 	while not self.onLine and i < maxTurn:
-		# 		if side == "right":
-		# 			self.robot.mover.rotate_left(speed=30,time=50,loop=False)
-		# 		else:
-		# 			self.robot.mover.rotate_right(speed=30,time=50,loop=False)
-		# 		self.updateOnLine()
-		# 		i += 1
-		#
-		# return i < maxTurn or self.onLine
-
-		############
-		#i = 0
-		#while True:
-		#	if self.onLine:
-		#		self.robot.mover.forward(loop = False)
-		#		self.robot.odometry.updateOdometry('')
-		#		self.updateOnLine()
-		#	direction =self.robot.angleVGyro>0
-		#	if not self.onLine:
-		#		if direction:
-		#			self.robot.mover.rotate_left(speed=30,time=50,loop=False)
-		#		else:
-		#			self.robot.mover.rotate_right(speed=30,time=50,loop=False)
-		#		self.updateOnLine()
-		#		self.robot.odometry.updateOdometry('')
-		#		i+=1
-		#		if i>45:
-		#			return True
-		#	self.updateOnLine()
-
-		self.pid.set(30,Kp=0.2,Ki=0.1,Kd=0.8)
+		self.pid.set(30,Kp=1.5,Ki=0.1,Kd=0.8)
 		done = False
 		count = 0
 		g = self.robot.gyroReading
@@ -84,16 +41,10 @@ class LineFollower():
 		while not done:
 			self.updateOnLine()
 			self.robot.odometry.updateOdometry('')
-			#print 'x,y: ',self.robot.x,self.robot.y
 			self.pid.update(self.robot.colorReading)
 			out = self.pid.output
-			# if out +30 > 100:
-			# 	out = 70
-			# elif out -30 <-100:
-			# 	out = -70
-			# shorter (maybe less readable though) below:
 
-			out = max(min(out,30),-30)
+			out = max(min(out,60),-60)
 
 			if self.robot.colorReading > 50:
 				count = count + 1
@@ -106,11 +57,11 @@ class LineFollower():
 				if count > maxCount and abs(diffGyro) > maxGyro:
 					break
 			if side == 'left':
-				self.robot.lMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)
-				self.robot.rMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
+				self.robot.lMotor.run_timed(duty_cycle_sp=min(30-out,30),time_sp=50)
+				self.robot.rMotor.run_timed(duty_cycle_sp=min(30+out,30),time_sp=50)
 			else:
-				self.robot.lMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
-				self.robot.rMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)
+				self.robot.lMotor.run_timed(duty_cycle_sp=min(30+out,30),time_sp=50)
+				self.robot.rMotor.run_timed(duty_cycle_sp=min(30-out,30),time_sp=50)
 			if sonar:
 				self.updateSonar()
 				if self.obstacleFound:
@@ -301,7 +252,7 @@ class ObstacleAvoider(LineFollower):
 		# turn sonar to look at object
 		# drive forward until sonar doesnt see an object anymore
 		# repeat until we find the line
-		#self.robot.mover.rotateDegrees(90)
+		self.robot.mover.rotatePID(90)
 		self.robot.servo.run_to_abs_pos(position_sp=-90,duty_cycle_sp=25)
 		while self.robot.servo.state and self.robot.lMotor.state and self.robot.rMotor.state:
 			pass
@@ -364,9 +315,9 @@ class ObstacleAvoider(LineFollower):
 		self.follow(side='left',sonar=True)
 
 		self.robot.speak("found object. getting closer to object.")
-		self.goToObject()
+		#self.goToObject()
 
-		self.robot.speak("Going to get around object.")
+		self.robot.speak("Going around object.")
 		self.goAroundObject()
 
 		self.robot.speak("went around object, found line again.")

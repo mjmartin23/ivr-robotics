@@ -105,6 +105,22 @@ class Move:
 				ti.sleep(0.1)
 			self.robot.odometry.updateOdometry('rotate')
 
+	def rotatePID(self,degrees):
+		done = False
+		self.robot.odometry.updateOdometry('')
+		self.controller.set(degrees,Kp=0.5,Ki=0.01,Kd=0.75)
+		initialAngle = self.robot.gyroReading
+		while not done:
+			self.robot.odometry.updateOdometry('')
+			self.controller.update(self.robot.gyroReading - initialAngle)
+			out = self.controller.out
+
+			self.robot.lMotor.run_timed(duty_cycle_sp=0+out,time_sp=50)
+			self.robot.rMotor.run_timed(duty_cycle_sp=0-out,time_sp=50)
+
+			if abs(out) < 1:
+				break
+
 
 	def stopWheels(self, l=False,r=False,update=True):
 		if l:

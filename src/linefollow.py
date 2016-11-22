@@ -28,14 +28,14 @@ class LineFollower():
 		self.obstacleFound = self.robot.sonarReading < dist
 
 	def checkEdge(self):
-		if self.robot.colorReading < 20:
+		if self.robot.colorReading < 17:
 			self.edge = 1
-		elif self.robot.colorReading > 40:
+		elif self.robot.colorReading > 45:
 			self.edge = -1
 		else:
 			self.edge = 0
 
-	def follow(self,side="right",sonar=False,dist=200,maxCount=None,maxGyro=45,K=[4.0,2.0,8.0]):
+	def follow(self,side="right",sonar=False,dist=200,maxCount=None,maxGyro=45,K=[4.0,2.0,8.0,7]):
 		# return True if there is more line to be followed
 		# return False if we got to the end of the line
 		#
@@ -43,7 +43,7 @@ class LineFollower():
 		# will put it in a while loop
 
 		base = 25
-		self.pid.set(0,K[0],K[1],K[2])
+		self.pid.set(0,K[0],K[1],K[2],window=int(K[3]))
 		done = False
 		count = 0
 		g = self.robot.gyroReading

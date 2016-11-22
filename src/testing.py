@@ -6,6 +6,28 @@
 from robot import *
 import time
 
+def collectPIDData():
+    r = Robot()
+    outs = []
+    base = 25
+    r.follower.pid.set(0,4,2,8)
+    for i in range(200):
+        r.follower.updateOnLine()
+        r.follower.checkEdge()
+        r.follower.pid.update(r.follower.edge)
+        out = r.follower.pid.output
+        print 'raw',out
+        outs.append(r.follower.pid.output)
+        out = max(min(out,2*base),-2*base)
+        r.follower.robot.lMotor.run_timed(duty_cycle_sp=base-out,time_sp=100)
+        r.follower.robot.rMotor.run_timed(duty_cycle_sp=base+out,time_sp=100)
+    r.mover.stopWheels(r=True,l=True,update=False)
+    f = open('/home/robot/ivr-robotics/data/pid1.txt','w')
+    for out in outs:
+        f.write('%d\n' % out)
+    f.close()
+
+
 def findMotorPositionToMillimeters():
     rob = Robot()
     dists = range(100,700,50)

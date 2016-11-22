@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.6.19)  21 NOV 2016 17:48
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.6.19)  22 NOV 2016 17:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -381,33 +381,46 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+<img/motor_distance.png, id=10, 343.2825pt x 180.675pt>
+File: img/motor_distance.png Graphic file (type png)
 
-LaTeX Warning: Reference `fig:motorDistance' on page 2 undefined on input line 
-89.
+<use img/motor_distance.png>
+Package pdftex.def Info: img/motor_distance.png used on input line 103.
+(pdftex.def)             Requested size: 312.00119pt x 164.21048pt.
 
-[2] (./main.aux)
+<img/rotation_distance.png, id=11, 327.624pt x 184.89075pt>
+File: img/rotation_distance.png Graphic file (type png)
 
-LaTeX Warning: There were undefined references.
+<use img/rotation_distance.png>
+Package pdftex.def Info: img/rotation_distance.png used on input line 108.
+(pdftex.def)             Requested size: 312.00119pt x 176.08812pt.
 
- ) 
+Underfull \hbox (badness 10000) in paragraph at lines 103--109
+[][]
+ []
+
+[2] [3 <./img/motor_distance.png (PNG copy)> <./img/rotation_distance.png (PNG 
+copy)>] [4] [5] (./main.aux) ) 
 Here is how much of TeX's memory you used:
- 5356 strings out of 494953
- 78894 string characters out of 6180977
- 133630 words of memory out of 5000000
- 8575 multiletter control sequences out of 15000+600000
+ 5378 strings out of 494953
+ 79381 string characters out of 6180977
+ 135718 words of memory out of 5000000
+ 8593 multiletter control sequences out of 15000+600000
  12909 words of font info for 50 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 44i,6n,42p,623b,880s stack positions out of 5000i,500n,10000p,200000b,80000s
- </home/mjmartin/.texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600pk></usr/
-share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf
--dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/f
-onts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (2 pages, 61810 bytes).
+ 44i,10n,49p,844b,880s stack positions out of 5000i,500n,10000p,200000b,80000s
+ </home/mjmartin/.texmf-var/fonts/pk/ljfour/jknap
+pen/ec/tcrm1200.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.p
+fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share
+/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on main.pdf (5 pages, 133849 bytes).
 PDF statistics:
- 36 PDF objects out of 1000 (max. 8388607)
- 25 compressed objects within 1 object stream
+ 55 PDF objects out of 1000 (max. 8388607)
+ 37 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

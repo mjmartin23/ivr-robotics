@@ -51,7 +51,6 @@ class LineFollower():
 		sonarObjs = 0
 		while not done:
 			self.updateOnLine()
-			self.robot.odometry.updateOdometry('')
 			self.checkEdge()
 			self.pid.update(self.edge)
 			out = self.pid.output
@@ -59,7 +58,7 @@ class LineFollower():
 
 			out = max(min(out,2*base),-2*base)
 
-			if self.robot.colorReading > 40:
+			if self.edge == -1:
 				count = count + 1
 				diffGyro = g - self.robot.gyroReading
 			else:

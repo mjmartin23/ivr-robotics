@@ -113,6 +113,9 @@ These conversions proved useful in commanding our robot to move set distances or
 \end{figure}
 
 \subsection{Odometry and Dead Reckoning}
+Initially, a full dead reckoning system was attempted by following the calculations in ... . The resulting system worked but with too much error to be useful. Though we could've attempted to account for the error and make the system more accurate, the gain from having a working system didn't outweigh the cost of testing and developing it as we were able to complete the tasks without it.
+Instead, it was settled on simply knowing the relation between wheel rotation and real-world distance and angular change. Through, testing (See section on testing) we were able to find a constant proportionality between the wheel rotations and distance travelled in millemeters and another for the wheel rotation and degrees turned using both wheels. These were useful especially in following the straight line tasks and object avoidance task as will be described later. 
+
 
 \section{Methods}
 
@@ -122,9 +125,9 @@ Each of the three tasks built upon each other, beginning with simple line follow
 
 \subsubsection{Line following}
 
-Our first solution to this problem was functional, but naive. We set up a loop that operated by the following logic: if the robot was on the line (which could be determined by the value of the downward facing color sensor), turn right, otherwise, turn left. This resulted in the robot wiggling along the line with fairly wide turns and slow progress.
+Our first solution to this problem was functional, but naive. We initiated a loop that operated by the following logic: if the robot was on the line (which could be determined by the value of the downward facing color sensor), turn right, otherwise, turn left. This resulted in the robot wiggling along the line with fairly wide turns and slow progress.
 
-Then we revised our approach to use a PID controller instead. The overall idea was to set the goal of the PID controller to be the color/brightness value of the edge of the line. Therefore, the controller would constantly try to maintain that goal which would correspond to following the edge of the line. We created a function that returned a 0 if the robot was on the edge of the line, a -1 if it was not on the line, and a 1 if it was on the line. This information was sent as the current value to the PID each iteration. The goal of the PID was set to 0. Then, we did extensive tuning to achieve smooth results and steady-state accuracy.
+Then we revised our approach to use a PID controller instead. The overall idea was to set the goal of the PID controller to be the color/brightness value of the edge of the line. Therefore, the controller would constantly try to maintain that goal which would correspond to following the edge of the line. To normalize the readings fed to the PID controller, the raw readings from the color sensor had to undergo some calcultations. Firstly, the raw output of the color sensor was capped so that it's values stayed in the range of 10 and 50. Those values were then shifted accross by twenty so that they were centered across 0. Finally, the centered values were fed to the mathematical function tanh so that the values outputed were between -1 and 1. This information was sent as the current value to the PID each iteration. The goal of the PID was set to 0. Then, we did extensive tuning to achieve smooth results and steady-state accuracy.
 
 Tuning the controller was an extensive process. We had to first scale the output of the PID controller to values that made sense to the motors. We set the base \code{duty\_cycle\_sp = 25} for each of the motors, so that when it had 0 error, it would move forward at 25\% speed.  So the output values had to be scaled to make sense for a change in motor power percentage. One motor's speed was increased and the other's decreased, or vice versa, based on the sign of the output.
 
@@ -135,6 +138,7 @@ For detecting when the robot has reached the end of the line, we used a combinat
 \subsubsection{Staggered line navigation}
 
 \subsubsection{Obstacle avoidance}
+\section{Testing}
 
 \section{Results}
 

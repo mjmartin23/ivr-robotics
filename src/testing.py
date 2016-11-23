@@ -38,7 +38,7 @@ def collectPIDData():
     base = 25
     r.follower.pid.set(0,Kp=6.5,Ki=0.825,Kd=3.0,window=500)
     count = 0
-    while True:
+    for i in range(200):
         r.follower.updateOnLine()
         r.follower.checkEdge()
         r.follower.pid.update(r.follower.edge)
@@ -46,12 +46,12 @@ def collectPIDData():
         print 'raw',out
         outs.append(r.follower.pid.output)
         out = max(min(out,2*base),-2*base)
-        if r.follower.edge < -.5:
-            count += 1
-        else:
-            count = 0
-        if count > 25:
-            break
+        # if r.follower.edge < -.5:
+        #     count += 1
+        # else:
+        #     count = 0
+        # if count > 25:
+        #     break
         r.follower.robot.lMotor.run_timed(duty_cycle_sp=base+out,time_sp=100)
         r.follower.robot.rMotor.run_timed(duty_cycle_sp=base-out,time_sp=100)
     r.mover.stopWheels(r=True,l=True,update=False)

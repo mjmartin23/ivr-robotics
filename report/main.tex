@@ -82,7 +82,7 @@ The purpose of this practical is to learn about controlling a four-wheeled robot
 
 We approached these tasks in a series of steps. First, we tried to gain familiarity with the operation of the robot by performing several tests on it to see its movement based on commands that were sent to it. Then, using this information, we developed a system of odometry and dead-reckoning. Finally, we solved the tasks sequentially, as each subsequent task built on some of the methods developed in the prior task.
 
-\subsection{Testing}
+\subsection{Initial Testing}
 
 We conducted several tests in order to get consistency in how the commands that were sent to the robot translate to actual distance moved in the world.
 
@@ -117,13 +117,13 @@ Initially, a full dead reckoning system was attempted by following the calculati
 Instead, it was settled on simply knowing the relation between wheel rotation and real-world distance and angular change. Through, testing (See section on testing) we were able to find a constant proportionality between the wheel rotations and distance travelled in millemeters and another for the wheel rotation and degrees turned using both wheels. These were useful especially in following the straight line tasks and object avoidance task as will be described later. 
 
 
-\section{Methods}
+\section{Tasks}
 
-\subsection{Tasks}
+\subsection{Methods}
 
 Each of the three tasks built upon each other, beginning with simple line following.
 
-\subsubsection{Line following}
+\subsubsection{Line Following}
 
 Our first solution to this problem was functional, but naive. We initiated a loop that operated by the following logic: if the robot was on the line (which could be determined by the value of the downward facing color sensor), turn right, otherwise, turn left. This resulted in the robot wiggling along the line with fairly wide turns and slow progress.
 
@@ -138,12 +138,24 @@ For detecting when the robot has reached the end of the line, we used a combinat
 \subsubsection{Staggered line navigation}
 
 \subsubsection{Obstacle avoidance}
-\section{Testing}
+This task required the robot to follow a line until it sees and obstacle, then go around said obstacle and find back the line. To do this the robot was programmed to use the line following function from the line following task up until the sensor reading for the ultrasonic sensor fell below a threshold of 75 (7.5 cm). After falling below this threshold, the robot breaks out of its "following" state, stops its wheels and turns its body ninety degrees clockwise on the spot by using both wheels and then turns its servo ninety degrees counter-clockwise towards the object. It then changes to the "going around object state" and uses the readings from the ultrasonic sensor to send to a PID controller which attempts to maintain a constant distance between the obstacle and the robot until it detects the line again. After seeing the line again the robot then turns clockwise till it's off the line again and returns to the "following the line" state. 
+\subsection{Testing}
+\subsubsection{Line Following}
 
-\section{Results}
+\subsubsection{Staggered Line Navigation}
+
+\subsubsection{Obstacle Avoidance}
+Testing for this task involved tuning the PID controller for the going around the obstacle and retuning the PID controller for following the line as this task had a sharper corner than the rest. Tuning involved as mentioned before altering the coefficients testing and altering again until a stable and efficient point was reached. The ultrasonic sensor was also initially tested to determine its output and range, also how it dealt with viewing corners of objects and other odd cases. To do this testing, a loop was made with the robot printing its ultrasonic sensor's readings to the screen  
+\subsection{Results}
+\subsubsection{Line Following}
+\subsubsection{Staggered Line Navigation}
+\subsubsection{Obstacle Avoidance}
+
 
 \section{Discussion}
-
+The overall performance of the robot on the tasks were satisfiable in face of the limitations and challenges that were faced, however there are of course possible improvements in certain areas. 
+\subsection{Challenges}
+The task of tuning the PID controllers turned out to be a very tedious process as it required moving from room to room adjusting the parameters and testing on the training mats. Additionally, finding the balance between balancing the coefficients for the PID controller between being able to make sharp turns and overshooting was especially challenging. With regards to hardware, the gyro sensor and servo motor tended posed interesting problems. For the gyro sensor, it records it's starting point as the point and direction in which it was facing when the sensor was plugged in and there was no way to set that value back to zero at initialization of the robot without having to recalibrate the sensor on a whole. To get around this we recorded the reading of the gyro sensor at the point of initialization and avoided making calls directly to the gyro sensor but instead to a recorded value in which is the difference of the current value and the initial value fixed in the range [-180,180] to ensure the robot would always take the shortest route to the required angle (i.e. choosing between turning left or turning right). The servo motor on the other hand would at times for example believe that its zero position was at 90 degrees. In order to get around this we made sure to fix it manually at true zero and then indicated that this position was zero upon initialization of the robot. 
 
 \section*{Appendix}
 

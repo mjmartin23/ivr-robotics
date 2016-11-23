@@ -8,5 +8,4 @@ if __name__ == '__main__':
         r.follower.follow(K=map(float,sys.argv[1:]))
     r.go()
 
-# 9,0,1
-# 
+# 6,0.6,0.7

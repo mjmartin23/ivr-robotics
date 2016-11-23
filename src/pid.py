@@ -4,7 +4,7 @@ import time
 
 class PID:
     """docstring for PID"""
-    def __init__(self, Kp=1, Ki=1, Kd=1, goal=0, interval = 0.00001):
+    def __init__(self, Kp=1, Ki=1, Kd=1, goal=0, interval = 0.0001):
         self.Kp = Kp
         self.Ki = Ki
         self.Kd = Kd
@@ -20,7 +20,7 @@ class PID:
         self.interval = interval
         self.output = 0
 
-    def set(self,goal,Kp=None,Ki=None,Kd=None,interval = 0.00001,window=7):
+    def set(self,goal,Kp=None,Ki=None,Kd=None,interval = 0.0001,window=7):
         self.pValue = 0
         self.iValue = 0
         self.dValue = 0
@@ -48,6 +48,7 @@ class PID:
             self.pValue = self.Kp * error
 
             self.iQueue.append(error)
+            print len(self.iQueue)
             if len(self.iQueue) >= self.window:
                 self.iQueue.pop(0)
             self.iValue = sum(self.iQueue) * self.Ki

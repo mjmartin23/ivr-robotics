@@ -4,6 +4,7 @@
 
 import time
 import pid
+import math
 
 class LineFollower():
 	"""robot should be of type Robot"""
@@ -28,14 +29,17 @@ class LineFollower():
 		self.obstacleFound = self.robot.sonarReading < dist
 
 	def checkEdge(self):
-		if self.robot.colorReading < 17:
-			self.edge = 1
-		elif self.robot.colorReading > 45:
-			self.edge = -1
-		else:
-			self.edge = 0
+		val = min(max(self.robot.colorReading,10),50) - 30
+		self.edge = -math.tanh(val/20.0)
+		# if self.robot.colorReading < 20:
+		# 	self.edge = 1
+		# elif self.robot.colorReading > 45:
+		# 	self.edge = -1
+		# else:
+		# 	self.edge = 0
 
-	def follow(self,side="right",sonar=False,dist=200,maxCount=None,maxGyro=45,K=[4.0,2.0,8.0,7]):
+	def follow(self,side="right",sonar=False,dist=200,maxCount=None,maxGyro=45,K=[6.0,3.0,20.0,7]):
+		# 6.0,0.6,0.5
 		# return True if there is more line to be followed
 		# return False if we got to the end of the line
 		#
@@ -54,11 +58,11 @@ class LineFollower():
 			self.checkEdge()
 			self.pid.update(self.edge)
 			out = self.pid.output
-			print 'raw',out
+			#print 'raw',out
 
 			out = max(min(out,2*base),-2*base)
 
-			if self.edge == -1:
+			if self.edge < -.5:
 				count = count + 1
 				diffGyro = g - self.robot.gyroReading
 			else:
@@ -66,6 +70,7 @@ class LineFollower():
 				count = 0
 			print count, diffGyro
 			if maxCount is not None:
+				print 'here',count
 				if count > maxCount and abs(diffGyro) > maxGyro:
 					break
 			if side == 'left':
@@ -99,7 +104,7 @@ class CircleFollower(LineFollower):
 		self.robot.speak("following curved line")
 		# while self.follow():
 		# 	pass
-		self.follow(maxCount=15,maxGyro=20)
+		self.follow(side='left',maxCount=25,maxGyro=35)
 		self.robot.speak("done")
 		print 'done'
 
@@ -118,7 +123,7 @@ class BrokenLineFollower(LineFollower):
 		while self.linesCompleted < 5:
 			# follow() until reach end of line
 			self.robot.speak("following line %d" % (self.linesCompleted+1))
-			self.follow(side,maxCount=5,maxGyro=80)
+			self.follow(side,maxCount=10,maxGyro=0,K=[6,0,1,500])
 
 			# increment self.linesCompleted
 			self.linesCompleted += 1
@@ -145,10 +150,10 @@ class BrokenLineFollower(LineFollower):
 		# turn right until we've turned 70 degrees
 		self.robot.odometry.updateOdometry('')
 
-		# if self.linesCompleted % 2 == 1:
-		# 	self.robot.mover.rotateDegrees(60-self.robot.gyroReading)
-		# else:
-		# 	self.robot.mover.rotateDegrees(-60-self.robot.gyroReading)
+		if self.linesCompleted % 2 == 1:
+			self.robot.mover.rotateDegrees(80)
+		else:
+			self.robot.mover.rotateDegrees(-80)
 		#
 		# while self.robot.lMotor.state and self.robot.rMotor.state:
 		# 	pass
@@ -167,9 +172,11 @@ class BrokenLineFollower(LineFollower):
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
 		while not self.onLine:
 			if self.linesCompleted % 2 == 1:
-				self.robot.mover.rotateCounterClockwise(dist=10,loop=False)
+				self.robot.mover.rotate_right_till(speed=50,loop=False)
+				#self.robot.mover.rotateCounterClockwise(dist=10,loop=False)
 			else:
-				self.robot.mover.rotateClockwise(dist=10,loop=False)
+				self.robot.mover.rotate_left_till(speed=50,loop=False)
+				#self.robot.mover.rotateClockwise(dist=10,loop=False)
 			self.updateOnLine()
 			self.robot.odometry.updateOdometry('')
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
@@ -276,7 +283,7 @@ class ObstacleAvoider(LineFollower):
 
 		# trying to use PID - cleaner solution:
 		# just set the pid goal as the sonar reading.
-		self.pid.set(125,Kp=1.875*0.00001,Ki=1.875*0.0005,Kd=1.875*0.0001)
+		self.pid.set(125,Kp=1.875*0.00001,Ki=1.875*0.0008,Kd=1.875*0.0001)
 		self.updateOnLine()
 		t=0
 		while not self.onLine or t < 50:
@@ -294,7 +301,7 @@ class ObstacleAvoider(LineFollower):
 	def go(self):
 
 		#lookForObject(self.follow)
-		self.follow(side='right',sonar=True,dist=50)
+		self.follow(side='left',sonar=True,dist=75)
 
 		self.robot.speak("found object. getting closer to object.")
 		#self.goToObject()
@@ -310,7 +317,8 @@ class ObstacleAvoider(LineFollower):
 			self.robot.odometry.updateOdometry('')
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
 		self.robot.servo.run_to_abs_pos(position_sp=0,duty_cycle_sp=25)
-		self.follow(side='right',sonar=True,dist=75,K=[15,2,6])
+
+		self.follow(side='left',sonar=True,dist=75)
 
 		self.robot.speak("reached end of line")
 		self.robot.speak("done")

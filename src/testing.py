@@ -36,8 +36,9 @@ def collectPIDData():
     r = Robot()
     outs = []
     base = 25
-    r.follower.pid.set(0,Kp=8,Ki=0,Kd=2,window=500)
-    for i in range(200):
+    r.follower.pid.set(0,Kp=6.5,Ki=0.825,Kd=3.0,window=500)
+    count = 0
+    while True:
         r.follower.updateOnLine()
         r.follower.checkEdge()
         r.follower.pid.update(r.follower.edge)
@@ -45,10 +46,16 @@ def collectPIDData():
         print 'raw',out
         outs.append(r.follower.pid.output)
         out = max(min(out,2*base),-2*base)
-        r.follower.robot.lMotor.run_timed(duty_cycle_sp=base-out,time_sp=100)
-        r.follower.robot.rMotor.run_timed(duty_cycle_sp=base+out,time_sp=100)
+        if r.follower.edge < -.5:
+            count += 1
+        else:
+            count = 0
+        if count > 25:
+            break
+        r.follower.robot.lMotor.run_timed(duty_cycle_sp=base+out,time_sp=100)
+        r.follower.robot.rMotor.run_timed(duty_cycle_sp=base-out,time_sp=100)
     r.mover.stopWheels(r=True,l=True,update=False)
-    f = open('/home/robot/ivr-robotics/data/pid6_0_2.txt','w')
+    f = open('/home/robot/ivr-robotics/data/pid6-5_0-825_3.txt','w')
     for out in outs:
         f.write('%d\n' % out)
     f.close()
@@ -158,5 +165,5 @@ if __name__ == '__main__':
     #findMotorTurningToDegrees()
     #forwards()
     #turning()
-    #collectPIDData()
-    collectObstacePIDData()
+    collectPIDData()
+    #collectObstacePIDData()

@@ -38,11 +38,11 @@ class LineFollower():
 		# else:
 		# 	self.edge = 0
 
-	def follow(self,side="right",sonar=False,dist=200,maxCount=None,maxGyro=45,K=[12.0,1.0,3.0,500]):
+	def follow(self,side="right",sonar=False,dist=200,maxCount=None,maxGyro=45,K=[6.5,0.825,3.0,500]):
 		# 6.0,0.6,0.5
 		# 8 2.5 25 7
-		# BEST: 12 1 3 500
-		#
+		# 12 1 3 500
+		# BEST fot TASK C 9.5,0.675,3,500
 
 
 		base = 25
@@ -101,8 +101,6 @@ class CircleFollower(LineFollower):
 	def go(self):
 		# keep following the circle until reaches end of line
 		self.robot.speak("following curved line")
-		# while self.follow():
-		# 	pass
 		self.follow(side='left',maxCount=25,maxGyro=35)
 		self.robot.speak("done")
 		print 'done'
@@ -122,7 +120,7 @@ class BrokenLineFollower(LineFollower):
 		while self.linesCompleted < 5:
 			# follow() until reach end of line
 			self.robot.speak("following line %d" % (self.linesCompleted+1))
-			self.follow(side,maxCount=10,maxGyro=0,K=[12,1,3,500])
+			self.follow(side,maxCount=10,maxGyro=0)
 
 			# increment self.linesCompleted
 			self.linesCompleted += 1
@@ -134,7 +132,6 @@ class BrokenLineFollower(LineFollower):
 			self.robot.speak("looking for next line")
 
 			self.findNextLine()
-			self.robot.speak("found next line")
 
 			side = "right" if side == "left" else "left"
 			time.sleep(1)
@@ -150,12 +147,11 @@ class BrokenLineFollower(LineFollower):
 		self.robot.odometry.updateOdometry('')
 
 		if self.linesCompleted % 2 == 1:
-			self.robot.mover.rotateDegrees(65)
+			self.robot.mover.rotateDegrees(60)
 		else:
-			self.robot.mover.rotateDegrees(-65)
+			self.robot.mover.rotateDegrees(-60)
 		#
-		# while self.robot.lMotor.state and self.robot.rMotor.state:
-		# 	pass
+
 
 		# go forward until we find a line
 		self.updateOnLine()
@@ -164,6 +160,7 @@ class BrokenLineFollower(LineFollower):
 			self.updateOnLine()
 			self.robot.odometry.updateOdometry('')
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
+		self.robot.speak("found next line")
 		while self.onLine:
 			self.robot.mover.forward_till(loop=False)
 			self.updateOnLine()
@@ -172,10 +169,8 @@ class BrokenLineFollower(LineFollower):
 		while not self.onLine:
 			if self.linesCompleted % 2 == 1:
 				self.robot.mover.rotate_right_till(dist=10,loop=False)
-				#self.robot.mover.rotateCounterClockwise(dist=10,loop=False)
 			else:
 				self.robot.mover.rotate_left_till(dist=10,loop=False)
-				#self.robot.mover.rotateClockwise(dist=10,loop=False)
 			self.updateOnLine()
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
 		# turn back to original heading
@@ -300,9 +295,9 @@ class ObstacleAvoider(LineFollower):
 	def go(self):
 
 		#lookForObject(self.follow)
-		self.follow(side='left',sonar=True,dist=75)
+		self.follow(side='left',sonar=True,dist=75,K=[9.5,0.675,3,500])
 
-		self.robot.speak("found object. getting closer to object.")
+		self.robot.speak("found object")
 		#self.goToObject()
 
 		self.robot.speak("Going around object.")
@@ -311,13 +306,17 @@ class ObstacleAvoider(LineFollower):
 		self.robot.speak("went around object, found line again.")
 		self.updateOnLine()
 		while self.onLine:
+			self.robot.mover.forward(speed = 30)
+			self.updateOnLine()
+			self.robot.odometry.updateOdometry('')
+		while not self.onLine:
 			self.robot.mover.rotate_left_till(dist=10,loop=False)
 			self.updateOnLine()
 			self.robot.odometry.updateOdometry('')
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
 		self.robot.servo.run_to_abs_pos(position_sp=0,duty_cycle_sp=25)
 
-		self.follow(side='left',sonar=True,dist=75)
+		self.follow(side='left',sonar=True,dist=75, K=[9.5,0.675,3,500])
 
-		self.robot.speak("reached end of line")
+		self.robot.speak("completed a lap")
 		self.robot.speak("done")

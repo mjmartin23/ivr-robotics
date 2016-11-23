@@ -7,5 +7,3 @@ if __name__ == '__main__':
     if len(sys.argv) > 4:
         r.follower.follow(K=map(float,sys.argv[1:]))
     r.go()
-
-# 6,0.6,0.7

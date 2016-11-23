@@ -281,13 +281,14 @@ class ObstacleAvoider(LineFollower):
 
 		# trying to use PID - cleaner solution:
 		# just set the pid goal as the sonar reading.
-		self.pid.set(125,Kp=1.875*0.00001,Ki=1.875*0.0008,Kd=1.875*0.0001)
+		self.pid.set(100,Kp=1.875*0.015,Ki=0,Kd=-0.001)
 		self.updateOnLine()
 		t=0
 		while not self.onLine or t < 50:
 			t+=1
 			self.robot.odometry.updateOdometry('')
-			self.pid.update(self.robot.sonarReading)
+			son = min(self.robot.sonarReading,500)
+			self.pid.update(son)
 			out = self.pid.output
 			out = max(min(out,30),-30)
 			self.robot.lMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
@@ -310,7 +311,7 @@ class ObstacleAvoider(LineFollower):
 		self.robot.speak("went around object, found line again.")
 		self.updateOnLine()
 		while self.onLine:
-			self.robot.mover.rotateClockwise(dist=10,loop=False)
+			self.robot.mover.rotate_left_till(dist=10,loop=False)
 			self.updateOnLine()
 			self.robot.odometry.updateOdometry('')
 		self.robot.mover.stopWheels(r=True,l=True,update=False)

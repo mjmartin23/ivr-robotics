@@ -10,15 +10,16 @@ def collectObstacePIDData():
     r = Robot()
     outs = []
     base = 25
-    r.follower.pid.set(125,Kp=1.875*0.00001,Ki=1.875*0.0009,Kd=1.875*0.00005,window=5)
+    r.follower.pid.set(100,Kp=1.875*0.015,Ki=1.875*0,Kd=1.875*0,window=5)
     r.follower.updateOnLine()
     t=0
     while not r.follower.onLine or t < 50:
         t+=1
         r.odometry.updateOdometry('')
-        r.follower.pid.update(r.sonarReading)
+        son = min(r.sonarReading,500)
+        r.follower.pid.update(son)
         out = r.follower.pid.output
-        outs.append([out,r.sonarReading])
+        outs.append([out,son])
         out = max(min(out,30),-30)
         r.lMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
         r.rMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)
@@ -28,7 +29,7 @@ def collectObstacePIDData():
     f = open('/home/robot/ivr-robotics/data/pidObstacle.txt','w')
     f.write('pidOut,sonarReadingGoalIs125\n')
     for out in outs:
-        f.write('%f,%f\n' % out[0],out[1])
+        f.write('%f,%d\n' % (out[0],out[1]))
     f.close()
 
 def collectPIDData():

@@ -122,7 +122,7 @@ class BrokenLineFollower(LineFollower):
 		while self.linesCompleted < 5:
 			# follow() until reach end of line
 			self.robot.speak("following line %d" % (self.linesCompleted+1))
-			self.follow(side,maxCount=10,maxGyro=0,K=[12,1,3,500])
+			self.follow(side,maxCount=10,maxGyro=0)
 
 			# increment self.linesCompleted
 			self.linesCompleted += 1
@@ -150,9 +150,9 @@ class BrokenLineFollower(LineFollower):
 		self.robot.odometry.updateOdometry('')
 
 		if self.linesCompleted % 2 == 1:
-			self.robot.mover.rotateDegrees(65)
+			self.robot.mover.rotateDegrees(60)
 		else:
-			self.robot.mover.rotateDegrees(-65)
+			self.robot.mover.rotateDegrees(-60)
 		#
 		# while self.robot.lMotor.state and self.robot.rMotor.state:
 		# 	pass

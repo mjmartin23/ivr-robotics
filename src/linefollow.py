@@ -38,13 +38,12 @@ class LineFollower():
 		# else:
 		# 	self.edge = 0
 
-	def follow(self,side="right",sonar=False,dist=200,maxCount=None,maxGyro=45,K=[6.0,3.0,20.0,7]):
+	def follow(self,side="right",sonar=False,dist=200,maxCount=None,maxGyro=45,K=[12.0,1.0,3.0,500]):
 		# 6.0,0.6,0.5
-		# return True if there is more line to be followed
-		# return False if we got to the end of the line
+		# 8 2.5 25 7
+		# BEST: 12 1 3 500
 		#
-		# follow just moves one "step" forward, it's caller
-		# will put it in a while loop
+
 
 		base = 25
 		self.pid.set(0,K[0],K[1],K[2],window=int(K[3]))
@@ -123,7 +122,7 @@ class BrokenLineFollower(LineFollower):
 		while self.linesCompleted < 5:
 			# follow() until reach end of line
 			self.robot.speak("following line %d" % (self.linesCompleted+1))
-			self.follow(side,maxCount=10,maxGyro=0,K=[6,0,1,500])
+			self.follow(side,maxCount=10,maxGyro=0,K=[12,1,3,500])
 
 			# increment self.linesCompleted
 			self.linesCompleted += 1
@@ -151,9 +150,9 @@ class BrokenLineFollower(LineFollower):
 		self.robot.odometry.updateOdometry('')
 
 		if self.linesCompleted % 2 == 1:
-			self.robot.mover.rotateDegrees(80)
+			self.robot.mover.rotateDegrees(65)
 		else:
-			self.robot.mover.rotateDegrees(-80)
+			self.robot.mover.rotateDegrees(-65)
 		#
 		# while self.robot.lMotor.state and self.robot.rMotor.state:
 		# 	pass
@@ -172,13 +171,12 @@ class BrokenLineFollower(LineFollower):
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
 		while not self.onLine:
 			if self.linesCompleted % 2 == 1:
-				self.robot.mover.rotate_right_till(speed=50,loop=False)
+				self.robot.mover.rotate_right_till(dist=10,loop=False)
 				#self.robot.mover.rotateCounterClockwise(dist=10,loop=False)
 			else:
-				self.robot.mover.rotate_left_till(speed=50,loop=False)
+				self.robot.mover.rotate_left_till(dist=10,loop=False)
 				#self.robot.mover.rotateClockwise(dist=10,loop=False)
 			self.updateOnLine()
-			self.robot.odometry.updateOdometry('')
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
 		# turn back to original heading
 		# while self.onLine:

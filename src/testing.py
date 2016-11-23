@@ -6,11 +6,36 @@
 from robot import *
 import time
 
+def collectObstacePIDData():
+    r = Robot()
+    outs = []
+    base = 25
+    r.follower.pid.set(125,Kp=1.875*0.00001,Ki=1.875*0.0009,Kd=1.875*0.00005,window=5)
+    r.follower.updateOnLine()
+    t=0
+    while not r.follower.onLine or t < 50:
+        t+=1
+        r.odometry.updateOdometry('')
+        r.follower.pid.update(r.sonarReading)
+        out = r.follower.pid.output
+        outs.append([out,r.sonarReading])
+        out = max(min(out,30),-30)
+        r.lMotor.run_timed(duty_cycle_sp=30+out,time_sp=50)
+        r.rMotor.run_timed(duty_cycle_sp=30-out,time_sp=50)
+        r.follower.updateOnLine()
+
+    r.mover.stopWheels(r=True,l=True,update=False)
+    f = open('/home/robot/ivr-robotics/data/pidObstacle.txt','w')
+    f.write('pidOut,sonarReadingGoalIs125\n')
+    for out in outs:
+        f.write('%f,%f\n' % out[0],out[1])
+    f.close()
+
 def collectPIDData():
     r = Robot()
     outs = []
     base = 25
-    r.follower.pid.set(0,4,2,8)
+    r.follower.pid.set(0,Kp=8,Ki=0,Kd=2,window=500)
     for i in range(200):
         r.follower.updateOnLine()
         r.follower.checkEdge()
@@ -22,7 +47,7 @@ def collectPIDData():
         r.follower.robot.lMotor.run_timed(duty_cycle_sp=base-out,time_sp=100)
         r.follower.robot.rMotor.run_timed(duty_cycle_sp=base+out,time_sp=100)
     r.mover.stopWheels(r=True,l=True,update=False)
-    f = open('/home/robot/ivr-robotics/data/pid1.txt','w')
+    f = open('/home/robot/ivr-robotics/data/pid6_0_2.txt','w')
     for out in outs:
         f.write('%d\n' % out)
     f.close()
@@ -129,6 +154,8 @@ def turning():
 
 if __name__ == '__main__':
     #findMotorPositionToMillimeters()
-    findMotorTurningToDegrees()
+    #findMotorTurningToDegrees()
     #forwards()
     #turning()
+    #collectPIDData()
+    collectObstacePIDData()

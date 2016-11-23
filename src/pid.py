@@ -48,10 +48,17 @@ class PID:
             self.pValue = self.Kp * error
 
             self.iQueue.append(error)
-            print len(self.iQueue)
+            #print len(self.iQueue)
             if len(self.iQueue) >= self.window:
                 self.iQueue.pop(0)
             self.iValue = sum(self.iQueue) * self.Ki
+
+            # if ((self.lastError < 0 and error >= 0) or (self.lastError > 0 and error <= 0) or
+            #     (self.lastError <= 0 and error > 0) or (self.lastError >= 0 and error < 0)):
+            #     self.iValue = 0
+            # else:
+            #     self.iValue += error
+            # self.iValue *= self.Ki
 
             self.dValue = self.Kd * deltaError
 

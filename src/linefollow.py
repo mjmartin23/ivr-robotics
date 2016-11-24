@@ -236,7 +236,7 @@ class ObstacleAvoider(LineFollower):
 		distance = max(distance-7.5,0)
 		distance = self.robot.odometry.cm_to_clicks(distance)
 		self.robot.mover.stopWheels(l =True,r=True)
-		
+
 		self.robot.odometry.updateSensors()
 		self.robot.mover.go_to_ca(distance,angle,final_angle=80-self.robot.gyroReading)
 
@@ -248,7 +248,7 @@ class ObstacleAvoider(LineFollower):
 		# break when we find the line
 		self.robot.mover.rotateDegrees(100)
 		self.robot.servo.run_to_abs_pos(position_sp=-90,duty_cycle_sp=25)
-		while self.robot.servo.state and self.robot.lMotor.state and self.robot.rMotor.state:
+		while self.robot.servo.state or self.robot.lMotor.state or self.robot.rMotor.state:
 			pass
 		time.sleep(0.5)
 		self.robot.odometry.updateOdometry('')
@@ -295,7 +295,7 @@ class ObstacleAvoider(LineFollower):
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
 		self.robot.servo.run_to_abs_pos(position_sp=0,duty_cycle_sp=25)
 
-		self.follow(side='left',sonar=True,dist=75, K=[9.5,0.675,3,500])
+		self.follow(side='left',sonar=True,dist=75, K=[12.5,0.675,3,500])
 
 		self.robot.speak("completed a lap")
 		self.robot.speak("done")

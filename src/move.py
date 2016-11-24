@@ -97,7 +97,6 @@ class Move:
 	def rotateDegrees(self,degrees,loop = True):
 		# implement from lab 2B
 		clicks = self.robot.odometry.deg_to_clicks(degrees)
-		#self.robot.left_till(dist = clicks)
 		self.rotate(clicks)
 		if loop:
 			while(self.robot.lMotor.state and self.robot.rMotor.state):
@@ -116,7 +115,6 @@ class Move:
 			curAngle = self.robot.gyroReading-initialAngle
 			self.pid.update(curAngle)
 			out = self.pid.output
-			print 'o',out
 			out = max(min(out,100),-100)
 			self.robot.lMotor.run_timed(duty_cycle_sp=0+out,time_sp=50)
 			self.robot.rMotor.run_timed(duty_cycle_sp=0-out,time_sp=50)
@@ -149,30 +147,10 @@ class Move:
 		if final_angle != None:
 			self.robot.mover.rotateDegrees(final_angle)
 		self.robot.odometry.updateOdometry('')
-		# self.pid.set(angle)
-		# while abs(self.pid.lastError) > 2:
-		# 	self.robot.odometry.updateSensors()
-		# 	self.pid.update(robot.gyroReading)
-		# 	self.rotateDegrees(self.pid.output)
-		# time.sleep(0.5)
-		#
-		# self.pid.set(distance)
-		# initialPos = (self.robot.lMotor.position + self.robot.rMotor.position) / 2.0
-		# while abs(self.pid.lastError) > 2:
-		# 	self.robot.odometry.updateSensors()
-		# 	self.pid.update(self.robot.odometry.clicks_to_cm( (self.robot.lMotor.position + self.robot.rMotor.position) / 2.0 ) - initialPos)
-		# 	self.goDistance(self.pid.output)
-	    # time.sleep(0.5)
-		#
-	    # if final_angle is not None:
-		# 	self.pid.set(final_angle)
-		# 	while abs(self.pid.lastError) > 2:
-		# 		self.robot.odometry.updateSensors()
-		# 		self.pid.update(robot.gyroReading)
-		# 		self.rotateDegrees(self.pid.output)
-		# 	time.sleep(0.5)
 
 	def go_to(self,x,y,theta):
+			# goes to point that is x, y centimeters away from robot
+			# finishes facing angle theta
     		angle = math.atan2(y,x)*180.0/math.pi
     		distance = math.sqrt(x^2+y^2)
     		final_angle = theta-angle

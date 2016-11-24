@@ -38,6 +38,7 @@ class PID:
     def update(self,currentVal):
         '''returns number of units to move according to PID controller
         '''
+        # compute error
         error = self.goal - currentVal
         self.currentTime = time.time()
         deltaTime = self.currentTime - self.lastTime
@@ -45,24 +46,23 @@ class PID:
 
         if deltaTime >= self.interval:
             print 'e',error
+            # calculate P
             self.pValue = self.Kp * error
 
+            # using self.window for I value
+            # counteracts the buildup of errors over time
+            # by limiting the history of errors collected
             self.iQueue.append(error)
-            #print len(self.iQueue)
             if len(self.iQueue) >= self.window:
                 self.iQueue.pop(0)
             self.iValue = sum(self.iQueue) * self.Ki
 
-            # if ((self.lastError < 0 and error >= 0) or (self.lastError > 0 and error <= 0) or
-            #     (self.lastError <= 0 and error > 0) or (self.lastError >= 0 and error < 0)):
-            #     self.iValue = 0
-            # else:
-            #     self.iValue += error
-            # self.iValue *= self.Ki
-
+            # calculate D
             self.dValue = self.Kd * deltaError
 
+            # set values for next update
             self.lastTime = self.currentTime
     	    self.lastError = error
+
             print self.pValue,self.iValue,self.dValue
             self.output = self.pValue + self.iValue + self.dValue

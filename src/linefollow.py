@@ -10,7 +10,6 @@ class LineFollower():
 	"""robot should be of type Robot"""
 	def __init__(self,robot):
 		self.robot = robot
-		# True if robot on line False otherwise
 		self.updateOnLine()
 		self.pid = pid.PID()
 		self.obstacleFound = False
@@ -21,8 +20,8 @@ class LineFollower():
 		self.onLine = self.robot.colorReading < 30
 
 	def updateSonar(self,rotate=True,dist=200):
-		# 10 is arbitrary - we'll have to tune
-		# self.robot.sonarReading is in centimeters
+		# dist is arbitrary - we'll have to tune
+		# self.robot.sonarReading is in millimeters
 		if rotate:
 			self.robot.mover.rotateServo()
 		self.robot.odometry.updateOdometry('')
@@ -31,12 +30,6 @@ class LineFollower():
 	def checkEdge(self):
 		val = min(max(self.robot.colorReading,10),50) - 30
 		self.edge = -math.tanh(val/20.0)
-		# if self.robot.colorReading < 20:
-		# 	self.edge = 1
-		# elif self.robot.colorReading > 45:
-		# 	self.edge = -1
-		# else:
-		# 	self.edge = 0
 
 	def follow(self,side="right",sonar=False,dist=200,maxCount=None,maxGyro=45,K=[6.5,0.825,3.0,500]):
 		# 6.0,0.6,0.5
@@ -57,8 +50,6 @@ class LineFollower():
 			self.checkEdge()
 			self.pid.update(self.edge)
 			out = self.pid.output
-			#print 'raw',out
-
 			out = max(min(out,2*base),-2*base)
 
 			if self.edge < -.5:
@@ -69,7 +60,6 @@ class LineFollower():
 				count = 0
 			print count, diffGyro
 			if maxCount is not None:
-				print 'here',count
 				if count > maxCount and abs(diffGyro) > maxGyro:
 					break
 			if side == 'left':
@@ -113,7 +103,7 @@ class BrokenLineFollower(LineFollower):
 		self.linesCompleted = 0
 
 	def go(self):
-		# continue untill we've finished all 4 lines
+		# continue untill we've finished all 5 lines
 		self.robot.speak("following broken lines")
 		self.updateOnLine()
 		side = "left"
@@ -134,23 +124,23 @@ class BrokenLineFollower(LineFollower):
 			self.findNextLine()
 
 			side = "right" if side == "left" else "left"
-			time.sleep(1)
+			time.sleep(0.5)
 
 		self.robot.speak("done")
+		print "done"
 
 	def findNextLine(self):
 		# find next line
 		# line will be to the right if
 		# self.linesCompleted % 2 == 1
 		# it'll be on the left otherwise
-		# turn right until we've turned 70 degrees
-		self.robot.odometry.updateOdometry('')
 
+		# turn until we've turned 60 degrees
+		self.robot.odometry.updateOdometry('')
 		if self.linesCompleted % 2 == 1:
 			self.robot.mover.rotateDegrees(60)
 		else:
 			self.robot.mover.rotateDegrees(-60)
-		#
 
 
 		# go forward until we find a line
@@ -166,6 +156,8 @@ class BrokenLineFollower(LineFollower):
 			self.updateOnLine()
 			self.robot.odometry.updateOdometry('')
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
+
+		# rotate to get into position for line following
 		while not self.onLine:
 			if self.linesCompleted % 2 == 1:
 				self.robot.mover.rotate_right_till(dist=10,loop=False)
@@ -173,15 +165,6 @@ class BrokenLineFollower(LineFollower):
 				self.robot.mover.rotate_left_till(dist=10,loop=False)
 			self.updateOnLine()
 		self.robot.mover.stopWheels(r=True,l=True,update=False)
-		# turn back to original heading
-		# while self.onLine:
-		# 	if self.linesCompleted % 2 == 1:
-		# 		self.robot.mover.rotateCounterClockwise(self.robot.odometry.deg_to_clicks(50),loop=False)
-		# 	else:
-		# 		self.robot.mover.rotateClockwise(self.robot.odometry.deg_to_clicks(50),loop=False)
-		# 	self.updateOnLine()
-		# 	self.robot.odometry.updateOdometry('')
-		# self.robot.mover.stopWheels(r=True,l=True,update=False)
 
 
 class ObstacleAvoider(LineFollower):
@@ -194,6 +177,7 @@ class ObstacleAvoider(LineFollower):
 		self.obstacleMaxDist=-1
 
 	def lookForObject(self,action=None):
+		# unused
 		while not self.obstacleFound:
 			if(action != None):
 				action()
@@ -209,11 +193,11 @@ class ObstacleAvoider(LineFollower):
 			print t, self.obstacleMinDist/10, self.obstacleMinAngle, self.obstacleMaxAngle
 			t+= 1
 		self.robot.mover.stopServor()
-		#print self.obstacleMinDist/10.0, (self.obstacleMaxAngle + self.obstacleMinAngle)/2
 		dist = self.obstacleMinDist
 		return int(dist/10.0), (self.obstacleMaxAngle + self.obstacleMinAngle)/2
 
 	def compare(self,d1,d2,epsilon):
+		# unused
 		if d2 > d1 - epsilon:
 			if d2<d1+ epsilon:
 				return 0
@@ -223,50 +207,45 @@ class ObstacleAvoider(LineFollower):
 			return -1
 
 	def analyseObject(self):
-				self.robot.mover.rotateServo()
-				self.robot.odometry.updateOdometry('')
-				angle = self.robot.servoReading
-				dist = self.robot.sonarReading
-				angle = angle % 360
-				if angle > 180:
-					angle = angle - 360
-				i = self.compare(self.obstacleMinDist,dist,5)
-				j = self.compare(self.obstacleMinAngle,angle,2)
-				if i < 0 and j < 1:
-					self.obstacleMinAngle = angle
-					self.obstacleMinDist = dist
+		# unused
+		self.robot.mover.rotateServo()
+		self.robot.odometry.updateOdometry('')
+		angle = self.robot.servoReading
+		dist = self.robot.sonarReading
+		angle = angle % 360
+		if angle > 180:
+			angle = angle - 360
+		i = self.compare(self.obstacleMinDist,dist,5)
+		j = self.compare(self.obstacleMinAngle,angle,2)
+		if i < 0 and j < 1:
+			self.obstacleMinAngle = angle
+			self.obstacleMinDist = dist
 
-				i = self.compare(self.obstacleMinDist,dist,5)
-				j = self.compare(self.obstacleMaxAngle,angle,2)
-				#print angle
-				if i <= 0 and j > -1:
-					self.obstacleMaxAngle = angle
-					self.obstacleMinDist = dist
+		i = self.compare(self.obstacleMinDist,dist,5)
+		j = self.compare(self.obstacleMaxAngle,angle,2)
+		#print angle
+		if i <= 0 and j > -1:
+			self.obstacleMaxAngle = angle
+			self.obstacleMinDist = dist
 
 
 	def goToObject(self,safe=100):
+		# unused
 		self.robot.mover.forward(time = 50000,loop=False)
 		distance,angle = self.lookForObject()
 		distance = max(distance-7.5,0)
 		distance = self.robot.odometry.cm_to_clicks(distance)
 		self.robot.mover.stopWheels(l =True,r=True)
-		#distance= self.robot.odometry.cm_to_clicks(distance)
-		#print distance
+		
 		self.robot.odometry.updateSensors()
 		self.robot.mover.go_to_ca(distance,angle,final_angle=80-self.robot.gyroReading)
 
-		# get closer to object using PD control
-		#dist,angle = self.robot.sonarReading/10, self.robot.servoReading
-		# buffer of safe cm from object
-		#self.robot.mover.go_to_ca(dist-safe,angle)
-		#self.robot.servo.run_to_rel_pos(position_sp=0,duty_cycle_sp=25)
 
 	def goAroundObject(self):
-		# possible algorithm:
-		# turn robot 90 degrees so it is parallel with object
+		# turn robot so it is parallel with object
 		# turn sonar to look at object
-		# drive forward until sonar doesnt see an object anymore
-		# repeat until we find the line
+		# set PID goal as distance to object
+		# break when we find the line
 		self.robot.mover.rotateDegrees(100)
 		self.robot.servo.run_to_abs_pos(position_sp=-90,duty_cycle_sp=25)
 		while self.robot.servo.state and self.robot.lMotor.state and self.robot.rMotor.state:
@@ -294,15 +273,15 @@ class ObstacleAvoider(LineFollower):
 
 	def go(self):
 
-		#lookForObject(self.follow)
+		# follow line until sonar finds something within 75 mm
 		self.follow(side='left',sonar=True,dist=75,K=[9.5,0.675,3,500])
 
 		self.robot.speak("found object")
-		#self.goToObject()
 
 		self.robot.speak("Going around object.")
 		self.goAroundObject()
 
+		# found the line again, orient the robot for line following again
 		self.robot.speak("went around object, found line again.")
 		self.updateOnLine()
 		while self.onLine:

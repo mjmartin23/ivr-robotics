@@ -2,7 +2,6 @@
 # Matt Martin, Dylan Angus
 # 7/11/16
 
-#Part 1 Testing forward travel
 from robot import *
 import time
 
@@ -165,5 +164,6 @@ if __name__ == '__main__':
     #findMotorTurningToDegrees()
     #forwards()
     #turning()
-    collectPIDData()
+    #collectPIDData()
     #collectObstacePIDData()
+    pass

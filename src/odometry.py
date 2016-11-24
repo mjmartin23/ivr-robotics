@@ -25,16 +25,11 @@ class Odometry:
 		return clicks*constant/10.0
 
 	def deg_to_clicks(self,deg):
-		#return self.robot.lbw*deg/2*math.pi
 		constant = 0.4695354523
 		return int(float(deg)/constant)
 
 	def updateSensors(self, l=False,r=False,g=True,s=True,c=True):
 		if(g):
-			# val = (self.robot.gyro.value()-self.robot.initialGyro) % 360
-			# if val > 180:
-			# 	val = val - 360
-			# self.robot.gyroReading = val
 			self.robot.gyroReading = self.robot.gyro.value()
 		if(s):
 			self.robot.sonarReading = self.robot.sonar.value()
